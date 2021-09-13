@@ -1,0 +1,17 @@
+{
+  "name": "texture-moderation",
+  "version": "1.0.0",
+  "title": " 材质审核",
+  "description": "",
+  "author": "Asnxthaony",
+  "namespace": "Asnxthaony\\TextureModeration",
+  "require": {
+    "blessing-skin-server": "^5|^6"
+  },
+  "enchants": {
+    "icon": {
+      "fa": "shield-alt",
+      "bg": "yellow"
+    }
+  }
+}

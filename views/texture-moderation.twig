@@ -1,0 +1,60 @@
+{% extends 'admin.base' %}
+
+{% block title %}材质审核{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>TID</th>
+            <th>名称</th>
+            <th>上传者</th>
+            <th>状态</th>
+            <th>预览图</th>
+            <th>上传时间</th>
+            <th>更多操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+            <tr>
+              <td>{{ record.tid }}</td>
+              <td>{{ record.name }}</td>
+              <td>{{ record.nickname }} (UID: {{ record.uploader }})</td>
+              <td>{{ states[record.state] }}</td>
+              <td>
+                <img src="/preview/{{ record.tid }}?height=150" alt="{{ record.name }}" width="64">
+              </td>
+              <td>{{ record.upload_at }}</td>
+              <td>
+                {% if record.state == 0 %}
+                  <a href="#" onclick="texture_moderation_accept({{ record.tid }})" class="btn btn-success mr-2">通过</a>
+                  <a href="#" onclick="texture_moderation_reject({{ record.tid }})" class="btn btn-danger">拒绝</a>
+                {% else %}
+                  <a href="#" class="btn btn-success mr-2 disabled">通过</a>
+                  <a href="#" class="btn btn-danger disabled">拒绝</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7">暂无记录</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <div class="float-left">
+        <a class="btn btn-primary float-left mr-2" href="?type=pending">Pending</a>
+        <a class="btn btn-success float-left mr-2" href="?type=accepted">Accepted</a>
+        <a class="btn btn-danger" href="?type=rejected">Rejected</a>
+      </div>
+      <div class="float-right">
+        {{ records.links()|raw }}
+      </div>
+    </div>
+  </div>
+{% endblock %}
