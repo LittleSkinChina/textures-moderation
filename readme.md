@@ -7,3 +7,6 @@ return $query->where('public', true)
     ->where('state', 1);
 ```
 
+需求文档：docs/requirement.md
+
+技术方案：docs/proposal.md
