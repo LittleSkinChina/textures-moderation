@@ -1,12 +1,27 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-
 return [
     App\Events\PluginWasEnabled::class => function () {
-        if (!Schema::hasColumn('textures', 'state')) {
-            Schema::table('textures', function ($table) {
-                $table->tinyInteger('state')->after('likes')->default(0);
+        if (!Schema::hasTable('moderation_whitelist')) {
+            Schema::create('moderation_whitelist', function ($table) {
+                $table->increments('id');
+                $table->integer('user_id');
+                $table->integer('operator');
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('moderation_records')) {
+            Schema::create('moderation_records', function ($table) {
+                $table->increments('id');
+                $table->integer('tid');
+                $table->integer('porn_score')->default(-1);
+                $table->string('porn_label')->default('');
+                $table->integer('politics_score')->default(-1);
+                $table->string('politics_label')->default('');
+                $table->integer('review_state');
+                $table->integer('operator')->nullable();
+                $table->timestamps();
             });
         }
     },
