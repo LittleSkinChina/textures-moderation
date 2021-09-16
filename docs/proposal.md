@@ -19,6 +19,7 @@
 | politics_label | 机审鉴政类型；字符串；默认值空                               |
 | review_state   | 审核状态；`MISS` 不满足机审条件（长或宽小于 50px）、`USER` 用户拥有免审权限、`MANUAL` 等待人工审核，`APPROVED` 审核通过，`REJECTED` 审核拒绝；默认 `MANUAL` |
 | operator       | 整型值，表示材质的审核者的 UID，允许 `null`（机审直接通过或机审转人工时） |
+| updated_at     | 字符串，表示材质最后被审核的时间                             |
 
 ## 插件配置
 
@@ -59,7 +60,7 @@
 
 ## 审核流程
 
-1. 如材质符合下述任一情况，则 review_state 字段设为对应值，operator 字段的值留空，流程结束
+1. 如材质符合下述任一情况，则 `review_state` 字段设为对应值，`operator` 字段的值留空，流程结束
    * 材质长小于等于 50px，或宽小于等于 50px，设为 `MISS`
    * 材质上传者拥有材质免审权限，设为 `USER`
 2. 判断材质是否已审核过（符合以下任一情况），如已审核过则直接返回先前的审核结果
@@ -74,7 +75,8 @@
    * **detect-url**: 材质 URL，如 `https://mcskin.littleservice.cn/raw/1.png`
    * **biz-type**: 使用配置值，未配置则不包含该参数
 4. 将识别结果入库（`porn_score`、`porn_label`、`politics_score`、`politics_label`），并将 operator 字段的值留空（`null`）
-5. 若机审鉴黄评分及鉴政评分均 **小于** _机审阈值_，则 `review_state` 设为 `APPROVED` 并将材质设为公开，否则设为 `MANUAL`
+5. 若机审鉴黄评分及鉴政评分均 **小于** _机审阈值_，则 `review_state` 字段设为 `APPROVED` 并将材质设为公开，否则设为 `MANUAL`
+6. 更新 `updated_at` 字段为当前时间
 
 ## 人工审核
 
@@ -108,7 +110,7 @@
   * 适用于确定违规的材质
   * 直接删除材质，且不退回积分
 
-不论审核结果为何，都应将 `moderation_record` 表中 operator 字段的值设为审核该材质的管理员的 UID，并向材质上传者发送站内通知。
+不论审核结果为何，都应将 `moderation_record` 表中 `operator` 字段的值设为审核该材质的管理员的 UID，并向材质上传者发送站内通知。
 
 ## 用户管理界面
 
