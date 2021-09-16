@@ -2,9 +2,9 @@
   "name": "texture-moderation",
   "version": "1.0.0",
   "title": " 材质审核",
-  "description": "",
-  "author": "Asnxthaony",
-  "namespace": "Asnxthaony\\TextureModeration",
+  "description": "使用腾讯云数据万象服务，辅以人工，审核用户上传的材质。",
+  "author": "LittleSkin",
+  "namespace": "LittleSkin\\TextureModeration",
   "require": {
     "blessing-skin-server": "^5|^6"
   },

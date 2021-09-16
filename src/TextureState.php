@@ -1,6 +1,6 @@
 <?php
 
-namespace Asnxthaony\TextureModeration;
+namespace LittleSkin\TextureModeration;
 
 final class TextureState
 {

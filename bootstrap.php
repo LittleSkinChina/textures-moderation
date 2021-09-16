@@ -6,7 +6,7 @@ return function () {
     Hook::addScriptFileToPage(plugin_assets('texture-moderation', 'js/texture-moderation.js'), ['admin/texture-moderation']);
 
     Hook::addRoute(function () {
-        Route::namespace('Asnxthaony\TextureModeration')
+        Route::namespace('LittleSkin\TextureModeration')
             ->middleware(['web', 'auth', 'role:admin'])
             ->prefix('admin/texture-moderation')
             ->group(function () {

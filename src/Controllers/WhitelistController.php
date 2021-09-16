@@ -1,8 +1,8 @@
 <?php
 
-namespace Asnxthaony\TextureModeration\Controllers;
+namespace LittleSkin\TextureModeration\Controllers;
 
-use Asnxthaony\TextureModeration\Models\WhitelistItem;
+use LittleSkin\TextureModeration\Models\WhitelistItem;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Asnxthaony\TextureModeration;
+namespace LittleSkin\TextureModeration;
 
 use App\Models\Texture;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +37,7 @@ class TextureModerationController extends Controller
             2 => '审核未通过',
         ];
 
-        return view('Asnxthaony\TextureModeration::texture-moderation', ['records' => $records, 'states' => $states]);
+        return view('LittleSkin\TextureModeration::texture-moderation', ['records' => $records, 'states' => $states]);
     }
 
     public function review(Request $request)
