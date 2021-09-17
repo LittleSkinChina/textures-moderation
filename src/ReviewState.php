@@ -2,7 +2,7 @@
 
 namespace LittleSkin\TextureModeration;
 
-final class TextureState
+final class ReviewState
 {
     public const MANUAL = 0;
     public const ACCEPTED = 1;

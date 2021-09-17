@@ -19,11 +19,11 @@ class TextureModerationController extends Controller
             ->when($type, function (Builder $query, $type) {
                 switch ($type) {
                     case 'pending':
-                        return $query->where('state', TextureState::PENDING);
+                        return $query->where('state', ReviewState::PENDING);
                     case 'accepted':
-                        return $query->where('state', TextureState::ACCEPTED);
+                        return $query->where('state', ReviewState::ACCEPTED);
                     case 'rejected':
-                        return $query->where('state', TextureState::REJECTED);
+                        return $query->where('state', ReviewState::REJECTED);
                 }
             })
             ->join('users', 'uid', 'uploader')
@@ -55,7 +55,7 @@ class TextureModerationController extends Controller
                 $texture = Texture::where('tid', $tid)->first();
 
                 if ($texture) {
-                    $texture->state = TextureState::ACCEPTED;
+                    $texture->state = ReviewState::ACCEPTED;
 
                     $texture->save();
 
@@ -75,7 +75,7 @@ class TextureModerationController extends Controller
                 $texture = Texture::where('tid', $tid)->first();
 
                 if ($texture) {
-                    $texture->state = TextureState::REJECTED;
+                    $texture->state = ReviewState::REJECTED;
 
                     $texture->save();
 
