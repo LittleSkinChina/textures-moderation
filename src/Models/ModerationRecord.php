@@ -4,13 +4,14 @@ namespace LittleSkin\TextureModeration\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class WhitelistItem extends Model
+class ModerationRecord extends Model
 {
-    protected $table = 'moderation_whitelist';
-
     protected $casts = [
         'id' => 'integer',
-        'user_id' => 'integer',
+        'tid' => 'integer',
+        'porn_score' => 'integer',
+        'politics_score' => 'integer',
+        'review_state' => 'integer',
         'operator' => 'integer',
     ];
 }
