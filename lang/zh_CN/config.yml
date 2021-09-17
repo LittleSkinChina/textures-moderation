@@ -1,1 +1,7 @@
 title: 免审用户管理
+
+user:
+  add: 添加用户
+  grant-time: 授权时间
+  grant-admin: 授权人
+  revoke: 撤销权限 
