@@ -4,8 +4,13 @@ use App\Services\Hook;
 use Blessing\Filter;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\ReviewState;
+use Illuminate\Contracts\Events\Dispatcher;
+use LittleSkin\TextureModeration\Listeners\OnPrivacyUpdated;
+use LittleSkin\TextureModeration\Listeners\OnUpload;
 
-return function (Filter $filter) {
+return function (Filter $filter, Dispatcher $events) {
+    $events->listen('texture.uploaded', OnUpload::class);
+    $events->listen('texture.privacy.updated', OnPrivacyUpdated::class);
     Hook::addScriptFileToPage(plugin_assets('texture-moderation', 'js/texture-moderation.js'), ['admin/texture-moderation']);
 
     Hook::addRoute(function () {
