@@ -19,14 +19,14 @@ class OnPrivacyUpdated
       if (!$record) {
         $texture->public = false;
         ModerationController::start($texture);
-      } else if ($record->state === ReviewState::REJECTED) {
+      } else if ($record->review_state === ReviewState::REJECTED) {
         return abort(403, 'rejected');
-      } else if ($record->state === ReviewState::ACCEPTED) {
+      } else if ($record->review_state === ReviewState::ACCEPTED) {
         return;
       } else if (
-        $record->state === ReviewState::MISS
-        || $record->state === ReviewState::MANUAL
-        || $record->state === ReviewState::ACCEPTED
+        $record->review_state === ReviewState::MISS
+        || $record->review_state === ReviewState::MANUAL
+        || $record->review_state === ReviewState::ACCEPTED
       ) {
         return;
       }

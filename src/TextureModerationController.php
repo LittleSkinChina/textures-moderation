@@ -15,23 +15,35 @@ class TextureModerationController extends Controller
 {
     public function show(Request $request)
     {
-        $type = $request->input('type');
+        /*$type = $request->input('type');
 
         $records = DB::table('moderation_records', 'mr')
             ->where('review_state', $type)
             ->leftJoin('textures', 'textures.tid', '=', 'mr.tid')
             ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
-            ->select(['mr.tid', 'textures.uploader', 'users.uid', 'users.nickname', 'mr.operator', 'mr.updated_at', 'mr.review_state'])
+            ->select(['textures.uploader', 'users.uid', 'users.nickname', 'mr.*'])
             ->paginate(7);
 
+        */
         $states = [
             ReviewState::PENDING => '正在处理',
             ReviewState::ACCEPTED => '审核通过',
             ReviewState::REJECTED => '审核拒绝',
             ReviewState::USER => '用户免审',
-            ReviewState::MISS => '无需审核'
+            ReviewState::MISS => '无需审核',
+            ReviewState::MANUAL => '等待审核'
         ];
-        return view('LittleSkin\TextureModeration::texture-moderation', ['records' => $records, 'states' => $states]);
+        return view('LittleSkin\TextureModeration::texture-moderation', [
+            'states' => $states
+        ]);
+    }
+
+    public function manage(Request $request)
+    {
+        $q = $request->input('q');
+
+        return ModerationRecord::usingSearchString($q)
+            ->paginate(9);
     }
 
     public function review(Request $request)
@@ -51,7 +63,7 @@ class TextureModerationController extends Controller
                 if ($texture) {
                     $texture->operator = Auth::user()->uid;
                     $texture->review_state = ReviewState::ACCEPTED;
-
+                    
                     $texture->save();
 
                     return json('操作成功', 0);
@@ -61,12 +73,6 @@ class TextureModerationController extends Controller
 
                 break;
             case 'reject':
-                $reason = $request->input('reason');
-
-                if (empty($reason)) {
-                    return json('理由不能为空', 1);
-                }
-
                 $texture = ModerationRecord::where('tid', $tid)->first();
 
                 if ($texture) {
@@ -80,6 +86,21 @@ class TextureModerationController extends Controller
                     return json('材质不存在', 1);
                 }
 
+                break;
+            case 'private':
+                $texture = ModerationRecord::where('tid', $tid)->first();
+
+                if ($texture) {
+                    $texture->operator = Auth::user()->uid;
+                    $texture->public = false;
+                    $texture->review_state = ReviewState::REJECTED;
+
+                    $texture->save();
+
+                    return json('操作成功', 0);
+                } else {
+                    return json('材质不存在', 1);
+                }
                 break;
         }
     }

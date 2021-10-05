@@ -4,11 +4,8 @@
 {% endblock %}
 
 {% block content %}
-
-		<script>
-			window.data = {{ records|json_encode|raw }}
-			window.states = {{ states|json_encode|raw }}
-		</script>
-	<div class="row" id="moderation_root">
-	</div>
+	<script>
+		window.states = {{ states|json_encode|raw }}
+	</script>
+	<div class="row" id="moderation_root"></div>
 {% endblock %}
