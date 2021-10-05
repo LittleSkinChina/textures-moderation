@@ -6,7 +6,10 @@ use App\Models\Texture;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use LittleSkin\TextureModeration\Models\ModerationRecord;
 
 class TextureModerationController extends Controller
 {
@@ -14,29 +17,20 @@ class TextureModerationController extends Controller
     {
         $type = $request->input('type');
 
-        $records = Texture::orderBy('upload_at', 'desc')
-            ->where('public', true)
-            ->when($type, function (Builder $query, $type) {
-                switch ($type) {
-                    case 'pending':
-                        return $query->where('state', ReviewState::PENDING);
-                    case 'accepted':
-                        return $query->where('state', ReviewState::ACCEPTED);
-                    case 'rejected':
-                        return $query->where('state', ReviewState::REJECTED);
-                }
-            })
-            ->join('users', 'uid', 'uploader')
-            ->select(['tid', 'name', 'uploader', 'state', 'upload_at', 'nickname'])
-            ->paginate(7)
-            ->withQueryString();
+        $records = DB::table('moderation_records', 'mr')
+            ->where('review_state', $type)
+            ->leftJoin('textures', 'textures.tid', '=', 'mr.tid')
+            ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
+            ->select(['mr.tid', 'textures.uploader', 'users.uid', 'users.nickname', 'mr.operator', 'mr.updated_at', 'mr.review_state'])
+            ->paginate(7);
 
         $states = [
-            0 => '审核中',
-            1 => '审核通过',
-            2 => '审核未通过',
+            ReviewState::PENDING => '正在处理',
+            ReviewState::ACCEPTED => '审核通过',
+            ReviewState::REJECTED => '审核拒绝',
+            ReviewState::USER => '用户免审',
+            ReviewState::MISS => '无需审核'
         ];
-
         return view('LittleSkin\TextureModeration::texture-moderation', ['records' => $records, 'states' => $states]);
     }
 
@@ -52,10 +46,11 @@ class TextureModerationController extends Controller
 
         switch ($action) {
             case 'accept':
-                $texture = Texture::where('tid', $tid)->first();
+                $texture = ModerationRecord::where('tid', $tid)->first();
 
                 if ($texture) {
-                    $texture->state = ReviewState::ACCEPTED;
+                    $texture->operator = Auth::user()->uid;
+                    $texture->review_state = ReviewState::ACCEPTED;
 
                     $texture->save();
 
@@ -72,10 +67,11 @@ class TextureModerationController extends Controller
                     return json('理由不能为空', 1);
                 }
 
-                $texture = Texture::where('tid', $tid)->first();
+                $texture = ModerationRecord::where('tid', $tid)->first();
 
                 if ($texture) {
-                    $texture->state = ReviewState::REJECTED;
+                    $texture->operator = Auth::user()->uid;
+                    $texture->review_state = ReviewState::REJECTED;
 
                     $texture->save();
 

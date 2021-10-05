@@ -1,0 +1,1 @@
+esbuild ./views/moderation.jsx --target=chrome80,firefox80  > ./assets/js/texture-moderation.js
