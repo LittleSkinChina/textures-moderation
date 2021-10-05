@@ -3,6 +3,7 @@
 namespace LittleSkin\TextureModeration;
 
 use App\Models\Texture;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -15,16 +16,6 @@ class TextureModerationController extends Controller
 {
     public function show(Request $request)
     {
-        /*$type = $request->input('type');
-
-        $records = DB::table('moderation_records', 'mr')
-            ->where('review_state', $type)
-            ->leftJoin('textures', 'textures.tid', '=', 'mr.tid')
-            ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
-            ->select(['textures.uploader', 'users.uid', 'users.nickname', 'mr.*'])
-            ->paginate(7);
-
-        */
         $states = [
             ReviewState::PENDING => '正在处理',
             ReviewState::ACCEPTED => '审核通过',
@@ -42,15 +33,21 @@ class TextureModerationController extends Controller
     {
         $q = $request->input('q');
 
-        return ModerationRecord::usingSearchString($q)
-            ->paginate(9);
+        return ModerationRecord
+            ::select('moderation_records.*')
+            ->usingSearchString($q)
+            ->leftJoin('users as operator', 'operator.uid', '=', 'moderation_records.operator')
+            ->leftJoin('textures', 'textures.tid', '=', 'moderation_records.tid')
+            ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
+            ->select(['textures.uploader', 'users.uid', 'users.nickname', 'moderation_records.*', 'operator.nickname as operator_nickname'])
+            ->paginate(2);
     }
 
     public function review(Request $request)
     {
         $data = $request->validate([
             'id' => ['required', 'integer'],
-            'action' => ['required', Rule::in(['accept', 'reject'])],
+            'action' => ['required', Rule::in(['accept', 'reject', 'private'])],
         ]);
 
         $tid = $data['id'];
@@ -58,12 +55,16 @@ class TextureModerationController extends Controller
 
         switch ($action) {
             case 'accept':
-                $texture = ModerationRecord::where('tid', $tid)->first();
+                $record = ModerationRecord::where('tid', $tid)->first();
 
-                if ($texture) {
-                    $texture->operator = Auth::user()->uid;
-                    $texture->review_state = ReviewState::ACCEPTED;
-                    
+                if ($record) {
+                    $record->operator = Auth::user()->uid;
+                    $record->review_state = ReviewState::ACCEPTED;
+
+                    $record->save();
+
+                    $texture = Texture::where('tid', $tid)->first();
+                    $texture->public = true;
                     $texture->save();
 
                     return json('操作成功', 0);
@@ -73,31 +74,53 @@ class TextureModerationController extends Controller
 
                 break;
             case 'reject':
-                $texture = ModerationRecord::where('tid', $tid)->first();
+                $record = ModerationRecord::where('tid', $tid)->first();
 
-                if ($texture) {
-                    $texture->operator = Auth::user()->uid;
-                    $texture->review_state = ReviewState::REJECTED;
+                if ($record) {
+                    $record->operator = Auth::user()->uid;
+                    $record->review_state = ReviewState::REJECTED;
 
-                    $texture->save();
+                    $record->save();
+                    $texture = Texture::where('tid', $tid)->first();
+                    $texture->delete();
 
-                    return json('操作成功', 0);
+                    $user = User::where('uid', $texture->uploader)->first();
+                    $size = $texture->size;
+                    $user->score += $size * option('score_per_storage');
+                    $user->save();
+
+                    return json('操作成功, 已删除材质并返还积分', 0);
                 } else {
                     return json('材质不存在', 1);
                 }
 
                 break;
             case 'private':
-                $texture = ModerationRecord::where('tid', $tid)->first();
+                $record = ModerationRecord::where('tid', $tid)->first();
 
-                if ($texture) {
-                    $texture->operator = Auth::user()->uid;
-                    $texture->public = false;
-                    $texture->review_state = ReviewState::REJECTED;
+                if ($record) {
+                    $record->operator = Auth::user()->uid;
+                    $record->review_state = ReviewState::REJECTED;
 
-                    $texture->save();
+                    $record->save();
 
-                    return json('操作成功', 0);
+                    $texture = Texture::where('tid', $tid)->first();
+                    $user = User::where('uid', $texture->uploader)->first();
+                    $size = $texture->size;
+
+                    $diff = $size * (option('private_score_per_storage') - option('score_per_storage'));
+                    if ($user->score >= $diff) {
+                        $user->score -= $diff;
+                        $user->save();
+                        $texture->public = false;
+                        $texture->save();
+                        return json('操作成功, 已扣除用户积分, 作为私密材质保留', 0);
+                    } else {
+                        $user->score += $size * option('score_per_storage');
+                        $user->save();
+                        $texture->delete();
+                        return json('操作成功, 已删除材质并返还积分', 0);
+                    }
                 } else {
                     return json('材质不存在', 1);
                 }

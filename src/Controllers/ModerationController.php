@@ -5,6 +5,7 @@ namespace LittleSkin\TextureModeration\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Texture;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\ReviewState;

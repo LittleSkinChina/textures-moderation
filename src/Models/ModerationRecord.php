@@ -25,4 +25,8 @@ class ModerationRecord extends Model
         'review_state' => 'integer',
         'operator' => 'integer',
     ];
+
+    public function texture(){
+        return $this->belongsTo('App\Models\Texture');
+    }
 }

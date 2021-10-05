@@ -1,67 +1,8 @@
 const React = window.React
 const ReactDOM = window.ReactDOM
 const bsFetch = window.blessing.fetch
-
-/**
- * 
- * @returns const {fetch, notify} = window.blessing
-
-function texture_moderation_accept(id) {
-  notify.showModal({
-    'title': `通过 TID: ${id} 的审核`
-  }).then(() => {
-    fetch.post('/admin/texture-moderation/review', {
-      'id': id,
-      'action': 'accept',
-    }).then(response => {
-      if (response.code === 0) {
-        notify.toast.success(response.message)
-        location.reload()
-      } else {
-        notify.toast.error(response.message)
-      }
-    }).catch(() => {
-
-    })
-  }).catch(() => {
-
-  })
-}
-
-function texture_moderation_reject(id) {
-  let reason = ''
-
-  notify.showModal({
-    'mode': 'prompt',
-    'title': `拒绝 TID: ${id} 的审核`,
-    'text': '请输入理由：',
-    'placeholder': '理由',
-  }).then(result => {
-    reason = result.value
-  }).then(() => {
-    fetch.post('/admin/texture-moderation/review', {
-      'id': id,
-      'action': 'reject',
-      'reason': reason,
-    }).then(response => {
-      if (response.code === 0) {
-        notify.toast.success(response.message)
-        location.reload()
-      } else {
-        notify.toast.error(response.message)
-      }
-    }).catch(() => {
-
-    })
-  })
-  .catch(() => {
-
-  })
-}
-
-Object.assign(window, { texture_moderation_accept, texture_moderation_reject })
-
- */
+const toast = window.blessing.notify.toast
+import Pagination from '../../../resources/assets/src/components/Pagination'
 
 const Actions = ({ data, onSubmit }) => {
   return <div className="col-lg-4">
@@ -71,10 +12,13 @@ const Actions = ({ data, onSubmit }) => {
       </div>
       <div className="card-body">
         <div className="container-fluid">
-          {[['鉴黄得分', 'porn_score'], ['鉴黄标签', 'porn_label'], ['鉴政得分', 'politics_score'], ['鉴政标签', 'politics_label']].map(v => (
+          {[['鉴黄得分', 'porn_score'], ['鉴黄标签', 'porn_label'], ['鉴政得分', 'politics_score'], ['鉴政标签', 'politics_label']].map((v, i) => (
             <div className="row mb-3">
               <div className="col-sm-4">{v[0]}</div>
-              <div className="col-sm-8">{data[v[1]]}</div>
+              <div className="col-sm-8">{(i === 0 && data[v[1]] > 60)
+                ? (<><b>{data[v[1]]}</b>
+                  <i class="fas fa-exclamation-circle ml-2"></i></>)
+                : data[v[1]]}</div>
             </div>
           ))}
         </div>
@@ -87,6 +31,14 @@ const Actions = ({ data, onSubmit }) => {
         </div>
       </div>
     </div>
+    <div className="card">
+      <div className="card-header">
+        <h3 className="card-title">材质原图</h3>
+      </div>
+      <div className="card-body">
+        <img src={'/preview/' + data.tid} />
+      </div>
+    </div>
   </div>
 }
 
@@ -96,6 +48,7 @@ const App = () => {
 
   const [viewing, setViewing] = React.useState(null)
   const [page, setPage] = React.useState(1)
+  const [maxPage, setMaxPage] = React.useState(1)
   const [input, setInput] = React.useState('review_state:0 sort:-created_at')
   const onSubmit = (e) => {
     e.preventDefault()
@@ -110,14 +63,20 @@ const App = () => {
       },
     )
     setList(data)
+    setMaxPage(last_page)
   }
   const submit = async (action) => {
-    await bsFetch.post('/admin/texture-moderation/review', {
+    let r = await bsFetch.post('/admin/texture-moderation/review', {
       id: viewing.id,
       action
     })
-    setViewing(null)
-    update()
+    if (r.code === 0) {
+      notify.toast.success(r.message)
+      setViewing(null)
+      update()
+    } else {
+      notify.toast.error(r.message)
+    }
   }
   React.useEffect(() => {
     update()
@@ -138,38 +97,53 @@ const App = () => {
         </div>
         <div className="card-body d-flex flex-wrap">
           {list.map(v => (
-            <div className="card mr-3 mb-3" style={{width: 240}} onClick={() => setViewing(v)}>
+            <div className="card mr-3 mb-3" style={{ width: 240 }} onClick={() => setViewing(v)}>
               <div className="card-header">
-                <b>上传者</b>
-                <span className="mr-1">{v.nickname}</span>
-                (UID:
-                {v.uploader})
+                {v.uploader ? (
+                  <><b>上传者: </b>
+                    <span className="mr-1">{v.nickname}</span>
+                    (UID:
+                    {v.uploader})
+                  </>
+                ) :
+                  <b>材质已删除</b>}
               </div>
               <div className="card-body">
                 <img src={`/preview/${v.tid}?height=250`} className="card-img-top" />
               </div>
               <div className="card-footer">
-                <div className="d-flex justify-content-between">
-                  <span className="badge bg-warning">{states[v.review_state]}</span>
+                <div className="d-flex">
+                  <span className={"badge "
+                    + ([0, 5].includes(v.review_state) ? 'bg-warning' :
+                      [1, 3].includes(v.review_state) ? 'bg-green' :
+                        v.review_state === 2 ? 'bg-danger' :
+                          v.review_state === 4 ? 'bg-gray' : '')
+                  }>{states[v.review_state]}</span>
                   <span className="badge bg-info ml-1">TID:
                     {v.tid}</span>
                   <div className="dropdown"></div>
                 </div>
                 <div>
-                  <b>审核人：</b>
-                  (UID:
-                  {v.operator})
+                  <b>审核人: </b>
+                  {v.operator ? (
+                    <>{v.operator_nickname} (UID:
+                      {v.operator})</>
+                  ) : <>机审</>}
                 </div>
                 <div>
-                  <b>审核时间：</b>
-                  {v.updated_at}
+                  <b>审核时间: </b>
+                  {new Date(v.updated_at).toLocaleString()}
                 </div>
               </div>
             </div>
           ))}
         </div>
         <div className="card-footer">
-
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
         </div>
       </div>
     </div>
