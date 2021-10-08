@@ -20,3 +20,9 @@ state:
   rejected: 已被拒绝
   accepted: 审核通过
   user: 用户免审
+
+message:
+  privacy: 已设为私密并扣除积分
+  privacy-failed: 用户积分不足，已删除该材质
+  deleted: 已删除该材质
+  textures-not-exist: 该材质不存在
