@@ -22,11 +22,26 @@ return function (Filter $filter, Dispatcher $events) {
                 Route::post('review', 'TextureModerationController@review');
                 Route::get('list', 'TextureModerationController@manage');
             });
+
+            Route::namespace('LittleSkin\TextureModeration\Controllers')
+            ->middleware(['web', 'auth', 'role:admin'])
+            ->prefix('admin/moderation-whitelist')
+            ->group(function () {
+                Route::get('', 'WhitelistController@show');
+                Route::post('', 'WhitelistController@add');
+                Route::delete('', 'WhitelistController@delete');
+            });
     });
 
     Hook::addMenuItem('admin', 4001, [
         'title' => '材质审核',
         'link' => 'admin/texture-moderation',
+        'icon' => 'fa-shield-alt',
+    ]);
+
+    Hook::addMenuItem('admin', 4002, [
+        'title' => '免审用户',
+        'link' => 'admin/moderation-whitelist',
         'icon' => 'fa-shield-alt',
     ]);
 
