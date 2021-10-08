@@ -3,6 +3,7 @@ const ReactDOM = window.ReactDOM
 const bsFetch = window.blessing.fetch
 const toast = window.blessing.notify.toast
 import Pagination from './components/Pagination'
+const t = window.trans
 const Actions = ({ data, onSubmit }) => {
   return <div className="col-lg-4">
     <div className="card card-primary">
@@ -11,7 +12,7 @@ const Actions = ({ data, onSubmit }) => {
       </div>
       <div className="card-body">
         <div className="container-fluid">
-          {[['鉴黄得分', 'porn_score'], ['鉴黄标签', 'porn_label'], ['鉴政得分', 'politics_score'], ['鉴政标签', 'politics_label']].map((v, i) => (
+          {[[t('texture-moderation.moderate.porn-score'), 'porn_score'], [t('texture-moderation.moderate.porn-label'), 'porn_label'], [t('texture-moderation.moderate.politics-score'), 'politics_score'], [t('texture-moderation.moderate.politics-label'), 'politics_label']].map((v, i) => (
             <div className="row mb-3">
               <div className="col-sm-4">{v[0]}</div>
               <div className="col-sm-8">{(i === 0 && data[v[1]] > 60)
@@ -24,15 +25,23 @@ const Actions = ({ data, onSubmit }) => {
       </div>
       <div className="card-footer">
         <div className="float-left">
-          <a className="btn btn-danger mr-2" onClick={() => onSubmit('reject')}>审核拒绝</a>
-          <a className="btn btn-warning mr-2" onClick={() => onSubmit('private')}>设为私密</a>
-          <a className="btn btn-primary mr-2" onClick={() => onSubmit('accept')}>审核通过</a>
+          <a className="btn btn-danger mr-2" onClick={() => onSubmit('reject')}>
+            {t('texture-moderation.moderate.accept')}
+          </a>
+          <a className="btn btn-warning mr-2" onClick={() => onSubmit('private')}>
+          {t('texture-moderation.moderate.privacy')}
+          </a>
+          <a className="btn btn-primary mr-2" onClick={() => onSubmit('accept')}>
+          {t('texture-moderation.moderate.reject')}
+          </a>
         </div>
       </div>
     </div>
     <div className="card">
       <div className="card-header">
-        <h3 className="card-title">材质原图</h3>
+        <h3 className="card-title">
+          {t('texture-moderation.original')}
+        </h3>
       </div>
       <div className="card-body">
         <img src={'/preview/' + data.tid} />
@@ -123,14 +132,14 @@ const App = () => {
                   <div className="dropdown"></div>
                 </div>
                 <div>
-                  <b>审核人: </b>
+                  <b>{t('texture-moderation.reviewer')}: </b>
                   {v.operator ? (
                     <>{v.operator_nickname} (UID:
                       {v.operator})</>
                   ) : <>机审</>}
                 </div>
                 <div>
-                  <b>审核时间: </b>
+                  <b>{t('texture-moderation.last-reviewed')}: </b>
                   {new Date(v.updated_at).toLocaleString()}
                 </div>
               </div>

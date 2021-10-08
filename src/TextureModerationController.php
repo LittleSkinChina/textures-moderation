@@ -17,11 +17,11 @@ class TextureModerationController extends Controller
     public function show(Request $request)
     {
         $states = [
-            ReviewState::ACCEPTED => '审核通过',
-            ReviewState::REJECTED => '审核拒绝',
-            ReviewState::USER => '用户免审',
-            ReviewState::MISS => '无需审核',
-            ReviewState::MANUAL => '等待审核'
+            ReviewState::ACCEPTED => trans('LittleSkin\TextureModeration::front-end.state.accepted'),
+            ReviewState::REJECTED => trans('LittleSkin\TextureModeration::front-end.state.rejected'),
+            ReviewState::USER => trans('LittleSkin\TextureModeration::front-end.state.user'),
+            ReviewState::MISS => trans('LittleSkin\TextureModeration::front-end.state.miss'),
+            ReviewState::MANUAL => trans('LittleSkin\TextureModeration::front-end.state.manual'),
         ];
         return view('LittleSkin\TextureModeration::texture-moderation', [
             'states' => $states
