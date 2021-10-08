@@ -2,8 +2,7 @@ const React = window.React
 const ReactDOM = window.ReactDOM
 const bsFetch = window.blessing.fetch
 const toast = window.blessing.notify.toast
-import Pagination from '../../../resources/assets/src/components/Pagination'
-
+import Pagination from './components/Pagination'
 const Actions = ({ data, onSubmit }) => {
   return <div className="col-lg-4">
     <div className="card card-primary">
@@ -80,7 +79,7 @@ const App = () => {
   }
   React.useEffect(() => {
     update()
-  }, [])
+  }, [page])
 
   return <>
     <div className="col-lg-8">
@@ -141,7 +140,7 @@ const App = () => {
         <div className="card-footer">
           <Pagination
             page={page}
-            totalPages={totalPages}
+            totalPages={maxPage}
             onChange={setPage}
           />
         </div>

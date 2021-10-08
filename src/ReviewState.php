@@ -9,5 +9,4 @@ final class ReviewState
     public const REJECTED = 2;
     public const USER = 3;
     public const MISS = 4;
-    public const PENDING = 5;
 }

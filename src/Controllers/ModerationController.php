@@ -44,17 +44,17 @@ class ModerationController extends Controller
 
     $cosClient = new Client(
       array(
-        'region' => env('TEXMOD_REGION'),
+        'region' => env('COS_REGION'),
         'schema' => 'https',
         'credentials' => array(
-          'secretId'  => env('TEXMOD_SECRETID'),
-          'secretKey' => env('TEXMOD_SECRETKEY')
+          'secretId'  => env('COS_SECRET_ID'),
+          'secretKey' => env('COS_SECRET_KEY')
         )
       )
     );
     $imgUrl = url('/raw/' . $texture->tid . ".png");
     $result = $cosClient->getObjectSensitiveContentRecognition(array(
-      'Bucket' => env('TEXMOD_BUCKET'),
+      'Bucket' => env('COS_BUCKET'),
       'Key' => '/',
       'DetectType' => 'porn,politics',
       'DetectUrl' => $imgUrl,

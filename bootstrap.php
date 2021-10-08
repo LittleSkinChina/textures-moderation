@@ -26,7 +26,7 @@ return function (Filter $filter, Dispatcher $events) {
 
     Hook::addMenuItem('admin', 4001, [
         'title' => '材质审核',
-        'link' => 'admin/texture-moderation?type=pending',
+        'link' => 'admin/texture-moderation',
         'icon' => 'fa-shield-alt',
     ]);
 

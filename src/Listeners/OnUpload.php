@@ -9,7 +9,6 @@ use LittleSkin\TextureModeration\ReviewState;
 class OnUpload
 {
   public function handle(Texture $texture){
-    $texture->state === ReviewState::PENDING;
     $texture->public = false;
     $texture->save();
     ModerationController::start($texture);

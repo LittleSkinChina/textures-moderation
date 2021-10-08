@@ -17,7 +17,6 @@ class TextureModerationController extends Controller
     public function show(Request $request)
     {
         $states = [
-            ReviewState::PENDING => '正在处理',
             ReviewState::ACCEPTED => '审核通过',
             ReviewState::REJECTED => '审核拒绝',
             ReviewState::USER => '用户免审',
@@ -40,7 +39,7 @@ class TextureModerationController extends Controller
             ->leftJoin('textures', 'textures.tid', '=', 'moderation_records.tid')
             ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
             ->select(['textures.uploader', 'users.uid', 'users.nickname', 'moderation_records.*', 'operator.nickname as operator_nickname'])
-            ->paginate(2);
+            ->paginate(9);
     }
 
     public function review(Request $request)
