@@ -8,6 +8,7 @@ use App\Models\Texture;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
+use LittleSkin\TextureModeration\Models\WhitelistItem;
 use LittleSkin\TextureModeration\ReviewState;
 use Qcloud\Cos\Client;
 
@@ -25,11 +26,17 @@ class ModerationController extends Controller
     $record->tid = $texture->tid;
     $size = getimagesizefromstring($file);
     if ($size[0] <= 50 || $size[1] <= 50) {
-      $record->review_state === ReviewState::MISS;
+      $record->review_state = ReviewState::MISS;
       $record->save();
       return $record;
     }
     // @TODO uploader
+    $whitelist = WhitelistItem::where('user_id', $texture->uploader)->first();
+    if($whitelist){
+      $record->review_state = ReviewState::USER;
+      $record->save();
+      return $record;
+    }
 
     $textureInDb = DB::table('textures')
       ->where('hash', $texture->hash)
