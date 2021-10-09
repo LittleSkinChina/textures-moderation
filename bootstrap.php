@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Texture;
+use App\Models\User;
 use App\Services\Hook;
 use Blessing\Filter;
 use Blessing\Rejection;
@@ -9,11 +10,22 @@ use LittleSkin\TextureModeration\ReviewState;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use LittleSkin\TextureModeration\Controllers\ModerationController;
-use LittleSkin\TextureModeration\Listeners\OnPrivacyUpdated;
 use LittleSkin\TextureModeration\Listeners\OnUpload;
 
 return function (Filter $filter, Dispatcher $events) {
     $events->listen('texture.uploaded', OnUpload::class);
+    $events->listen('texture.deleted', function (Texture $texture) {
+        // 通过审核记录来判断
+        $record = ModerationRecord::where('tid', $texture->tid)->first();
+        if (($record->review_state === ReviewState::REJECTED || $record->review_state === ReviewState::MANUAL) && !$texture->public) {
+            // 退回的是 private 的积分, 扣除多余的部分
+            $size = $texture->size;
+            $user = User::where('uid', $texture->uploader)->first();
+            $diff = $size * (option('private_score_per_storage') - option('score_per_storage'));
+            $user->score -= $diff;
+            $user->save();
+        }
+    });
     $filter->add('can_update_texture_privacy', function ($init, $texture) {
         // private to public
         if (!$texture->public) {

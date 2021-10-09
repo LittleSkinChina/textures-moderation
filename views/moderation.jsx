@@ -26,13 +26,13 @@ const Actions = ({ data, onSubmit }) => {
       <div className="card-footer">
         <div className="float-left">
           <a className="btn btn-danger mr-2" onClick={() => onSubmit('reject')}>
-            {t('texture-moderation.moderate.accept')}
+            {t('texture-moderation.moderate.reject')}
           </a>
           <a className="btn btn-warning mr-2" onClick={() => onSubmit('private')}>
           {t('texture-moderation.moderate.privacy')}
           </a>
           <a className="btn btn-primary mr-2" onClick={() => onSubmit('accept')}>
-          {t('texture-moderation.moderate.reject')}
+          {t('texture-moderation.moderate.accept')}
           </a>
         </div>
       </div>
@@ -75,15 +75,15 @@ const App = () => {
   }
   const submit = async (action) => {
     let r = await bsFetch.post('/admin/texture-moderation/review', {
-      id: viewing.id,
+      id: viewing.tid,
       action
     })
     if (r.code === 0) {
-      notify.toast.success(r.message)
+      toast.success(r.message)
       setViewing(null)
       update()
     } else {
-      notify.toast.error(r.message)
+      toast.error(r.message)
     }
   }
   React.useEffect(() => {

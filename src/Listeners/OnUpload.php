@@ -1,4 +1,5 @@
 <?php
+
 namespace LittleSkin\TextureModeration\Listeners;
 
 use App\Models\Texture;
@@ -8,9 +9,12 @@ use LittleSkin\TextureModeration\ReviewState;
 
 class OnUpload
 {
-  public function handle(Texture $texture){
-    $texture->public = false;
-    $texture->save();
-    return ModerationController::start($texture);
+  public function handle(Texture $texture)
+  {
+    if ($texture->public) {
+      $texture->public = false;
+      $texture->save();
+      return ModerationController::start($texture);
+    }
   }
 }

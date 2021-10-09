@@ -4,6 +4,7 @@ namespace LittleSkin\TextureModeration;
 
 use App\Models\Texture;
 use App\Models\User;
+use App\Services\Hook;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -65,6 +66,9 @@ class TextureModerationController extends Controller
                     $texture = Texture::where('tid', $tid)->first();
                     $texture->public = true;
                     $texture->save();
+                    $user = User::where('uid', $texture->uploader)->first();
+
+                    Hook::sendNotification([$user], '材质审核结果', '材质 ' . $texture->name . ' 已审核通过');
 
                     return json('操作成功', 0);
                 } else {
@@ -87,6 +91,8 @@ class TextureModerationController extends Controller
                     $size = $texture->size;
                     $user->score += $size * option('score_per_storage');
                     $user->save();
+
+                    Hook::sendNotification([$user], '材质审核结果', '材质 ' . $texture->name . ' 已被删除');
 
                     return json('操作成功, 已删除材质并返还积分', 0);
                 } else {
@@ -113,11 +119,15 @@ class TextureModerationController extends Controller
                         $user->save();
                         $texture->public = false;
                         $texture->save();
+                        Hook::sendNotification([$user], '材质审核结果', '材质 ' . $texture->name . ' 已被设为私密');
                         return json('操作成功, 已扣除用户积分, 作为私密材质保留', 0);
                     } else {
                         $user->score += $size * option('score_per_storage');
                         $user->save();
                         $texture->delete();
+
+                        Hook::sendNotification([$user], '材质审核结果', '材质 ' . $texture->name . ' 已被删除');
+
                         return json('操作成功, 已删除材质并返还积分', 0);
                     }
                 } else {
