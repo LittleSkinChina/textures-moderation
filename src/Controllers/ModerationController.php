@@ -6,6 +6,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Texture;
 use App\Models\User;
+use Blessing\Rejection;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\Models\WhitelistItem;
@@ -32,7 +34,7 @@ class ModerationController extends Controller
     }
     // @TODO uploader
     $whitelist = WhitelistItem::where('user_id', $texture->uploader)->first();
-    if($whitelist){
+    if ($whitelist) {
       $record->review_state = ReviewState::USER;
       $record->save();
       return $record;
@@ -60,14 +62,20 @@ class ModerationController extends Controller
       )
     );
     $imgUrl = url('/raw/' . $texture->tid . ".png");
-    $result = $cosClient->getObjectSensitiveContentRecognition(array(
-      'Bucket' => env('COS_BUCKET'),
-      'Key' => '/',
-      'DetectType' => 'porn,politics',
-      'DetectUrl' => $imgUrl,
-      'ci-process' => 'sensitive-content-recognition',
-      'BizType' => env('TEXMOD_BIZTYPE')
-    ));
+    try {
+      $result = $cosClient->getObjectSensitiveContentRecognition(array(
+        'Bucket' => env('COS_BUCKET'),
+        'Key' => '/',
+        'DetectType' => 'porn,politics',
+        'DetectUrl' => $imgUrl,
+        'ci-process' => 'sensitive-content-recognition',
+        'BizType' => env('TEXMOD_BIZTYPE')
+      ));
+    } catch (Exception $e) {
+      $record->review_state = ReviewState::MANUAL;
+      $record->save();
+      return new Rejection('等待审核');
+    }
 
 
     $record->porn_label = $result['PornInfo'][0]['Label'];
@@ -78,9 +86,12 @@ class ModerationController extends Controller
     if ($record->porn_score < $threshold && $record->politics_score < $threshold) {
       $texture->public = true;
       $record->review_state = ReviewState::ACCEPTED;
-      return $texture->save();
+      $texture->save();
+      return;
     }
     $record->review_state = ReviewState::MANUAL;
     $record->save();
+    
+    return new Rejection('等待审核');
   }
 }

@@ -11,6 +11,6 @@ class OnUpload
   public function handle(Texture $texture){
     $texture->public = false;
     $texture->save();
-    ModerationController::start($texture);
+    return ModerationController::start($texture);
   }
 }

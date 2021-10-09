@@ -1,16 +1,36 @@
 <?php
 
+use App\Models\Texture;
 use App\Services\Hook;
 use Blessing\Filter;
+use Blessing\Rejection;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\ReviewState;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\DB;
+use LittleSkin\TextureModeration\Controllers\ModerationController;
 use LittleSkin\TextureModeration\Listeners\OnPrivacyUpdated;
 use LittleSkin\TextureModeration\Listeners\OnUpload;
 
 return function (Filter $filter, Dispatcher $events) {
     $events->listen('texture.uploaded', OnUpload::class);
-    $events->listen('texture.privacy.updated', OnPrivacyUpdated::class);
+    $filter->add('can_update_texture_privacy', function ($init, $texture) {
+        // private to public
+        if (!$texture->public) {
+            $record = DB::table('moderation_records')
+                ->where('tid', $texture->tid)
+                ->first();
+            if (!$record) {
+                $result = ModerationController::start($texture);
+                return $result ? $result : $texture;
+            } else if ($record->review_state === ReviewState::REJECTED) {
+                return new Rejection('该材质禁止公开。');
+            } else if ($record->review_state === ReviewState::MANUAL) {
+                return new Rejection('该材质正在等待管理员审核。');
+            }
+        }
+        return $texture;
+    });
     Hook::addScriptFileToPage(plugin_assets('texture-moderation', 'js/texture-moderation.js'), ['admin/texture-moderation']);
 
     Hook::addRoute(function () {
@@ -23,7 +43,7 @@ return function (Filter $filter, Dispatcher $events) {
                 Route::get('list', 'TextureModerationController@manage');
             });
 
-            Route::namespace('LittleSkin\TextureModeration\Controllers')
+        Route::namespace('LittleSkin\TextureModeration\Controllers')
             ->middleware(['web', 'auth', 'role:admin'])
             ->prefix('admin/moderation-whitelist')
             ->group(function () {

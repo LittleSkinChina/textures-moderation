@@ -18,7 +18,7 @@ class OnPrivacyUpdated
         ->first();
       if (!$record) {
         $texture->public = false;
-        ModerationController::start($texture);
+        return ModerationController::start($texture);
       } else if ($record->review_state === ReviewState::REJECTED) {
         return abort(403, 'rejected');
       } else if ($record->review_state === ReviewState::ACCEPTED) {
