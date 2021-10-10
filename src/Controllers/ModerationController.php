@@ -68,7 +68,7 @@ class ModerationController extends Controller
     $imgUrl = url('/raw/' . $texture->tid . ".png");
     try {
       $result = $cosClient->getObjectSensitiveContentRecognition(array(
-        'Bucket' => env('COS_BUCKET'),
+        'Bucket' => env('COS_BUCKET').'-'.env('COS_APP_ID'),
         'Key' => '/',
         'DetectType' => 'porn,politics',
         'DetectUrl' => $imgUrl,
