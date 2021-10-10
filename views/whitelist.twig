@@ -48,11 +48,11 @@ window.blessing.notify.toast.error(response.message)
 							<td>{{item.operator_nickname}}</td>
 							<td>{{item.created_at}}</td>
 							<td>
-								<a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">trans('LittleSkin\\TextureModeration::whitelist.user.revoke')</a>
+								<a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">{{ trans('LittleSkin\\TextureModeration::whitelist.user.revoke') }}</a>
 							</td>
 						{% else %}
 							<tr>
-								<td colspan="4">trans('LittleSkin\\TextureModeration::whitelist.user.empty')</td>
+								<td colspan="4">{{ trans('LittleSkin\\TextureModeration::whitelist.user.empty') }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>
