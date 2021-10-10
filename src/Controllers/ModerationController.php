@@ -74,7 +74,7 @@ class ModerationController extends Controller
     } catch (Exception $e) {
       $record->review_state = ReviewState::MANUAL;
       $record->save();
-      return new Rejection('等待审核');
+      return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
     }
 
 
@@ -92,6 +92,6 @@ class ModerationController extends Controller
     $record->review_state = ReviewState::MANUAL;
     $record->save();
     
-    return new Rejection('等待审核');
+    return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
   }
 }

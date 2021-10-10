@@ -36,9 +36,9 @@ return function (Filter $filter, Dispatcher $events) {
                 $result = ModerationController::start($texture);
                 return $result ? $result : $texture;
             } else if ($record->review_state === ReviewState::REJECTED) {
-                return new Rejection('该材质禁止公开。');
+                return new Rejection(trans('LittleSkin\TextureModeration::skinlib.rejected'));
             } else if ($record->review_state === ReviewState::MANUAL) {
-                return new Rejection('该材质正在等待管理员审核。');
+                return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
             }
         }
         return $texture;

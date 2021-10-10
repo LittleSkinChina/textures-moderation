@@ -44,7 +44,7 @@ const Actions = ({ data, onSubmit }) => {
         </h3>
       </div>
       <div className="card-body">
-        <img src={'/preview/' + data.tid} />
+        <img src={'/raw/' + data.tid} />
       </div>
     </div>
   </div>

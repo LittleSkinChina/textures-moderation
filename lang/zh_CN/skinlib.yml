@@ -1,1 +1,10 @@
 tip: <b>该材质正在等待管理员审核。</b>审核通过前，该材质可作为私密材质使用；审核通过后，该材质将自动公开。
+
+rejected: 该材质禁止公开。
+manual_tip: 该材质正在等待管理员审核。
+
+notification:
+  title: 材质审核结果
+  accepted: '材质 :name 已审核通过'
+  deleted: '材质 :name 已被删除'
+  private: '材质 :name 已被设为私密'
