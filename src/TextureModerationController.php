@@ -72,9 +72,9 @@ class TextureModerationController extends Controller
                         'name' => $texture->name
                     ]));
 
-                    return json('操作成功', 0);
+                    return json(trans('general.op-success'), 0);
                 } else {
-                    return json('材质不存在', 1);
+                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
 
                 break;
@@ -98,9 +98,9 @@ class TextureModerationController extends Controller
                         'name' => $texture->name
                     ]));
 
-                    return json('操作成功, 已删除材质并返还积分', 0);
+                    return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
                 } else {
-                    return json('材质不存在', 1);
+                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
 
                 break;
@@ -126,7 +126,7 @@ class TextureModerationController extends Controller
                         Hook::sendNotification([$user], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.private', [
                             'name' => $texture->name
                         ]));
-                        return json('操作成功, 已扣除用户积分, 作为私密材质保留', 0);
+                        return json(trans('LittleSkin\TextureModeration::manage.message.privacy'), 0);
                     } else {
                         $user->score += $size * option('score_per_storage');
                         $user->save();
@@ -136,10 +136,10 @@ class TextureModerationController extends Controller
                             'name' => $texture->name
                         ]));
 
-                        return json('操作成功, 已删除材质并返还积分', 0);
+                        return json(trans('LittleSkin\TextureModeration::manage.message.privacy-failed'), 0);
                     }
                 } else {
-                    return json('材质不存在', 1);
+                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
                 break;
         }

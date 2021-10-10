@@ -1,7 +1,7 @@
 {% extends 'admin.base' %}
 
 {% block title %}
-	{{ trans('LittleSkin\\TextureModeration::config.title')|raw }}
+	{{ trans('LittleSkin\\TextureModeration::whitelist.title')|raw }}
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@ window.blessing.notify.toast.error(response.message)
 		<div class="card-header">
 			<form method="post" class="input-group">
 				{{ csrf_field() }}
-				<input class="form-control" type="text" placeholder="用户UID" name="userId"/>
+				<input class="form-control" type="text" placeholder="UID" name="userId"/>
 				<div class="input-group-append">
 					<button class="btn btn-success">{{trans('general.submit')}}</button>
 				</div>
@@ -32,9 +32,9 @@ window.blessing.notify.toast.error(response.message)
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>{{ trans('LittleSkin\\TextureModeration::config.user.user') }}</th>
-						<th>{{ trans('LittleSkin\\TextureModeration::config.user.grant-admin') }}</th>
-						<th>{{ trans('LittleSkin\\TextureModeration::config.user.grant-time') }}</th>
+						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.user') }}</th>
+						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-admin') }}</th>
+						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-time') }}</th>
 						{# <th>{{trans('admin.operationsTitle')}}</th> #}
             <th>操作</th>
 					</tr>
@@ -48,11 +48,11 @@ window.blessing.notify.toast.error(response.message)
 							<td>{{item.operator_nickname}}</td>
 							<td>{{item.created_at}}</td>
 							<td>
-								<a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">撤销</a>
+								<a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">trans('LittleSkin\\TextureModeration::whitelist.user.revoke')</a>
 							</td>
 						{% else %}
 							<tr>
-								<td colspan="4">暂无记录</td>
+								<td colspan="4">trans('LittleSkin\\TextureModeration::whitelist.user.empty')</td>
 							</tr>
 						{% endfor %}
 					</tbody>

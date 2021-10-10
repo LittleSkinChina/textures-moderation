@@ -4,5 +4,6 @@ user:
   add: 添加用户
   grant-time: 授权时间
   grant-admin: 授权人
-  revoke: 撤销权限
+  revoke: 撤销
   user: 免审用户
+  empty: 暂无记录

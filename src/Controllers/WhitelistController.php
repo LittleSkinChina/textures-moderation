@@ -26,7 +26,7 @@ class WhitelistController extends Controller
     {
         $user = User::where('uid', $request->input('userId'))->first();
         if(!$user){
-            return abort(403, '用户不存在');
+            return abort(403, trans('admin.users.operations.non-existent'));
         }
         $item = new WhitelistItem();
         $item->user_id = $request->input('userId');
