@@ -30,14 +30,29 @@ class ModerationController extends Controller
     if ($size[0] <= 50 || $size[1] <= 50) {
       $record->review_state = ReviewState::MISS;
       $record->save();
-      return $record;
+      return;
     }
 
     $whitelist = WhitelistItem::where('user_id', $texture->uploader)->first();
     if ($whitelist) {
       $record->review_state = ReviewState::USER;
       $record->save();
-      return $record;
+      return;
+    }
+
+
+    $textureInDb = DB::table('textures')
+      ->where('hash', $texture->hash)
+      ->where('tid', '!=', $texture->tid)
+      ->first();
+    if ($textureInDb) {
+      $itsRecord = DB::table('moderation_records')
+        ->where('tid', $textureInDb->tid)->first();
+      if ($itsRecord) {
+        $record = $itsRecord->review_state;
+        $record->save();
+        return;
+      }
     }
 
     $cosClient = new Client(
@@ -80,7 +95,7 @@ class ModerationController extends Controller
     }
     $record->review_state = ReviewState::MANUAL;
     $record->save();
-    
+
     return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
   }
 }
