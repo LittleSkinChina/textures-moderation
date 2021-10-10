@@ -1,0 +1,21 @@
+name: 'build'
+on:
+  release:
+    types: [released]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+      - run: npm i esbuild -g
+      - run: chmod +x ./build.sh && mkdir -p ./assets/js/ && ./build.sh
+      - run: mkdir ./vendor && wget https://github.com/tencentyun/cos-php-sdk-v5/releases/download/v2.3.4/cos-sdk-v5-7.phar -O ./vendor/cos-sdk-v5-7.phar
+      - name: Make file
+        run: zip release.zip -r ./ -x '*.git*'
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release.zip
