@@ -17,7 +17,7 @@ return function (Filter $filter, Dispatcher $events) {
     $events->listen('texture.deleted', function (Texture $texture) {
         // 通过审核记录来判断
         $record = ModerationRecord::where('tid', $texture->tid)->first();
-        if (($record->review_state === ReviewState::REJECTED || $record->review_state === ReviewState::MANUAL) && !$texture->public) {
+        if ($record && ($record->review_state === ReviewState::REJECTED || $record->review_state === ReviewState::MANUAL) && !$texture->public) {
             // 退回的是 private 的积分, 扣除多余的部分
             $size = $texture->size;
             $user = User::where('uid', $texture->uploader)->first();
