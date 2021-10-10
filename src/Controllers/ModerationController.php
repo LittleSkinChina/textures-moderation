@@ -32,22 +32,11 @@ class ModerationController extends Controller
       $record->save();
       return $record;
     }
-    // @TODO uploader
+
     $whitelist = WhitelistItem::where('user_id', $texture->uploader)->first();
     if ($whitelist) {
       $record->review_state = ReviewState::USER;
       $record->save();
-      return $record;
-    }
-
-    $textureInDb = DB::table('textures')
-      ->where('hash', $texture->hash)
-      ->where('tid', '!=', $texture->tid)
-      ->first();
-    if ($textureInDb) {
-      $itsRecord = DB::table('moderation_records')
-        ->where('tid', $textureInDb->tid);
-      $record = $itsRecord->review_state;
       return $record;
     }
 
