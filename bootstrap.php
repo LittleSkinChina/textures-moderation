@@ -25,6 +25,9 @@ return function (Filter $filter, Dispatcher $events) {
             $user->score -= $diff;
             $user->save();
         }
+        if ($record && $record->review_state === ReviewState::MANUAL) {
+            $record->delete();
+        }
     });
     $filter->add('can_update_texture_privacy', function ($init, $texture) {
         // private to public

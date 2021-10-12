@@ -27,7 +27,7 @@ class ModerationController extends Controller
     $record = new ModerationRecord;
     $record->tid = $texture->tid;
     $size = getimagesizefromstring($file);
-    if ($size[0] <= 50 || $size[1] <= 50) {
+    if ($size[0] <= 100 || $size[1] <= 100) {
       $record->review_state = ReviewState::MISS;
       $record->save();
       return;

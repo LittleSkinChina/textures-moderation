@@ -1,12 +1,5 @@
 # Texture Moderation
 
-https://github.com/bs-community/blessing-skin-server/blob/dev/app/Http/Controllers/SkinlibController.php#L89
+## 如何开发
 
-```php
-return $query->where('public', true)
-    ->where('state', 1);
-```
-
-需求文档：docs/requirement.md
-
-技术方案：docs/proposal.md
+配置好 NodeJS 环境, `yarn global add esbuild`, 运行 `build.sh` 构建前端文件, 然后重新加载插件。
