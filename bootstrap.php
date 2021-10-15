@@ -5,15 +5,15 @@ use App\Models\User;
 use App\Services\Hook;
 use Blessing\Filter;
 use Blessing\Rejection;
-use LittleSkin\TextureModeration\Models\ModerationRecord;
-use LittleSkin\TextureModeration\ReviewState;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use LittleSkin\TextureModeration\Controllers\ModerationController;
-use LittleSkin\TextureModeration\Listeners\OnUpload;
+use LittleSkin\TextureModeration\Listeners\OnTextureUpload;
+use LittleSkin\TextureModeration\Models\ModerationRecord;
+use LittleSkin\TextureModeration\ReviewState;
 
 return function (Filter $filter, Dispatcher $events) {
-    $events->listen('texture.uploaded', OnUpload::class);
+    $events->listen('texture.uploaded', OnTextureUpload::class);
     $events->listen('texture.deleted', function (Texture $texture) {
         // 通过审核记录来判断
         $record = ModerationRecord::where('tid', $texture->tid)->first();
@@ -29,6 +29,7 @@ return function (Filter $filter, Dispatcher $events) {
             $record->delete();
         }
     });
+
     $filter->add('can_update_texture_privacy', function ($init, $texture) {
         // private to public
         if (!$texture->public) {
@@ -37,19 +38,22 @@ return function (Filter $filter, Dispatcher $events) {
                 ->first();
             if (!$record) {
                 $result = ModerationController::start($texture);
+
                 return $result ? $result : $texture;
-            } else if ($record->review_state === ReviewState::REJECTED) {
+            } elseif ($record->review_state === ReviewState::REJECTED) {
                 return new Rejection(trans('LittleSkin\TextureModeration::skinlib.rejected'));
-            } else if ($record->review_state === ReviewState::MANUAL) {
+            } elseif ($record->review_state === ReviewState::MANUAL) {
                 return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
             }
         }
+
         return $texture;
     });
+
     Hook::addScriptFileToPage(plugin_assets('texture-moderation', 'js/texture-moderation.js'), ['admin/texture-moderation']);
 
     Hook::addRoute(function () {
-        Route::namespace('LittleSkin\TextureModeration')
+        Route::namespace('LittleSkin\TextureModeration\Controllers')
             ->middleware(['web', 'auth', 'role:admin'])
             ->prefix('admin/texture-moderation')
             ->group(function () {

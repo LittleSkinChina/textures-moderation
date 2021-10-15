@@ -3,18 +3,23 @@
 namespace LittleSkin\TextureModeration\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Lorisleiva\LaravelSearchString\Concerns\SearchString;
-
 
 class ModerationRecord extends Model
 {
     use SearchString;
-    public const CREATED_AT = 'created_at';
-    public const UPDATED_AT = 'updated_at';
 
     protected $searchStringColumns = [
-        'id', 'tid', 'operator', 'review_state', 'porn_score', 'politics_score', 'porn_label', 'politics_label', 'created_at' => ['date' => true], 'updated_at' => ['date' => true], 
+        'id',
+        'tid',
+        'operator',
+        'review_state',
+        'porn_score',
+        'politics_score',
+        'porn_label',
+        'politics_label',
+        'created_at' => ['date' => true],
+        'updated_at' => ['date' => true],
     ];
 
     protected $casts = [
@@ -26,7 +31,8 @@ class ModerationRecord extends Model
         'operator' => 'integer',
     ];
 
-    public function texture(){
+    public function texture()
+    {
         return $this->belongsTo('App\Models\Texture');
     }
 }

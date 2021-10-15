@@ -1,63 +1,64 @@
 {% extends 'admin.base' %}
 
-{% block title %}
-	{{ trans('LittleSkin\\TextureModeration::whitelist.title')|raw }}
-{% endblock %}
+{% block title %}{{ trans('LittleSkin\\TextureModeration::whitelist.title')|raw }}{% endblock %}
 
 {% block content %}
-	<script>
-		window.deleteItem = (id) => {
-window.blessing.fetch.del('/admin/moderation-whitelist/', {userId: id}).then(response => {
-if (response.code === 0) {
-window.blessing.notify.toast.success(response.message)
-window.location.reload()
-} else {
-window.blessing.notify.toast.error(response.message)
-}
-}).catch(() => {})
-}
-	</script>
-	<div class="card">
-		<div class="card-header">
-			<form method="post" class="input-group">
-				{{ csrf_field() }}
-				<input class="form-control" type="text" placeholder="UID" name="userId"/>
-				<div class="input-group-append">
-					<button class="btn btn-success">{{trans('general.submit')}}</button>
-				</div>
-			</form>
-		</div>
-		<div class="card-body p-0">
+    <script>
+        window.deleteItem = (id) => {
+            window.blessing.fetch.del('/admin/moderation-whitelist/', {userId: id})
+                .then(response => {
+                    if (response.code === 0) {
+                        window.blessing.notify.toast.success(response.message)
+                        window.location.reload()
+                    } else {
+                        window.blessing.notify.toast.error(response.message)
+                    }
+                })
+                .catch(() => {})
+            }
+    </script>
+    <div class="card">
+        <div class="card-header">
+            <form method="post" class="input-group">
+                {{ csrf_field() }}
+                <input class="form-control" type="text" placeholder="UID" name="userId"/>
+                <div class="input-group-append">
+                    <button class="btn btn-success">{{ trans('general.submit') }}</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-body p-0">
 
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.user') }}</th>
-						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-admin') }}</th>
-						<th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-time') }}</th>
-						{# <th>{{trans('admin.operationsTitle')}}</th> #}
-            <th>操作</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for item in items %}
-						<tr>
-							<td>{{item.nickname}}
-								(UID:
-								{{item.uid}})</td>
-							<td>{{item.operator_nickname}}</td>
-							<td>{{item.created_at}}</td>
-							<td>
-								<a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">{{ trans('LittleSkin\\TextureModeration::whitelist.user.revoke') }}</a>
-							</td>
-						{% else %}
-							<tr>
-								<td colspan="4">{{ trans('LittleSkin\\TextureModeration::whitelist.user.empty') }}</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</tbody>
-			</table>
-		</div>
-	</div>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.user') }}</th>
+                        <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-admin') }}</th>
+                        <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-time') }}</th>
+                        {# <th>{{trans('admin.operationsTitle')}}</th> #}
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.nickname }}
+                                (UID:
+                                {{ item.uid }})</td>
+                            <td>{{ item.operator_nickname }}</td>
+                            <td>{{ item.created_at }}</td>
+                            <td>
+                                <a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">{{ trans('LittleSkin\\TextureModeration::whitelist.user.revoke') }}</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4">{{ trans('LittleSkin\\TextureModeration::whitelist.user.empty') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}

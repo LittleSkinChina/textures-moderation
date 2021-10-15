@@ -1,12 +1,10 @@
 {% extends 'admin.base' %}
 
-{% block title %}
-	{{ trans('LittleSkin\\TextureModeration::front-end.title')|raw }}
-{% endblock %}
+{% block title %}{{ trans('LittleSkin\\TextureModeration::front-end.title')|raw }}{% endblock %}
 
 {% block content %}
-	<script>
-		window.states = {{ states|json_encode|raw }}
-	</script>
-	<div class="row" id="moderation_root"></div>
+    <script>
+        window.states = {{ states|json_encode|raw }}
+    </script>
+    <div class="row" id="moderation_root"></div>
 {% endblock %}

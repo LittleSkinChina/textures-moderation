@@ -1,15 +1,13 @@
 <?php
 
-namespace LittleSkin\TextureModeration;
+namespace LittleSkin\TextureModeration\Controllers;
 
 use App\Models\Texture;
 use App\Models\User;
 use App\Services\Hook;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 
@@ -24,8 +22,9 @@ class TextureModerationController extends Controller
             ReviewState::MISS => trans('LittleSkin\TextureModeration::front-end.state.miss'),
             ReviewState::MANUAL => trans('LittleSkin\TextureModeration::front-end.state.manual'),
         ];
+
         return view('LittleSkin\TextureModeration::texture-moderation', [
-            'states' => $states
+            'states' => $states,
         ]);
     }
 
@@ -33,8 +32,7 @@ class TextureModerationController extends Controller
     {
         $q = $request->input('q');
 
-        return ModerationRecord
-            ::select('moderation_records.*')
+        return ModerationRecord::select('moderation_records.*')
             ->usingSearchString($q)
             ->leftJoin('users as operator', 'operator.uid', '=', 'moderation_records.operator')
             ->leftJoin('textures', 'textures.tid', '=', 'moderation_records.tid')
@@ -69,7 +67,7 @@ class TextureModerationController extends Controller
                     $user = User::where('uid', $texture->uploader)->first();
 
                     Hook::sendNotification([$user], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.accepted', [
-                        'name' => $texture->name
+                        'name' => $texture->name,
                     ]));
 
                     return json(trans('general.op-success'), 0);
@@ -95,7 +93,7 @@ class TextureModerationController extends Controller
                     $user->save();
 
                     Hook::sendNotification([$user], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
-                        'name' => $texture->name
+                        'name' => $texture->name,
                     ]));
 
                     return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
@@ -121,19 +119,23 @@ class TextureModerationController extends Controller
                     if ($user->score >= $diff) {
                         $user->score -= $diff;
                         $user->save();
+
                         $texture->public = false;
                         $texture->save();
+
                         Hook::sendNotification([$user], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.private', [
-                            'name' => $texture->name
+                            'name' => $texture->name,
                         ]));
+
                         return json(trans('LittleSkin\TextureModeration::manage.message.privacy'), 0);
                     } else {
                         $user->score += $size * option('score_per_storage');
                         $user->save();
+
                         $texture->delete();
 
                         Hook::sendNotification([$user], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
-                            'name' => $texture->name
+                            'name' => $texture->name,
                         ]));
 
                         return json(trans('LittleSkin\TextureModeration::manage.message.privacy-failed'), 0);
@@ -141,6 +143,7 @@ class TextureModerationController extends Controller
                 } else {
                     return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
+
                 break;
         }
     }
