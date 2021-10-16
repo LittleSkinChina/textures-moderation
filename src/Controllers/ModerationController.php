@@ -6,7 +6,6 @@ use App\Models\Texture;
 use Blessing\Rejection;
 use Exception;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\Models\WhitelistItem;
@@ -41,13 +40,11 @@ class ModerationController extends Controller
             return;
         }
 
-        $textureInDb = DB::table('textures')
-            ->where('hash', $texture->hash)
+        $textureInDb = Texture::where('hash', $texture->hash)
             ->where('tid', '!=', $texture->tid)
             ->first();
         if ($textureInDb) {
-            $itsRecord = DB::table('moderation_records')
-                ->where('tid', $textureInDb->tid)->first();
+            $itsRecord = ModerationRecord::where('tid', $textureInDb->tid)->first();
             if ($itsRecord) {
                 $record = $itsRecord->review_state;
                 $record->save();
@@ -85,6 +82,7 @@ class ModerationController extends Controller
 
         $record->porn_label = $result['PornInfo'][0]['Label'];
         $record->porn_score = $result['PornInfo'][0]['Score'];
+
         $record->politics_score = $result['PoliticsInfo'][0]['Score'];
         $record->politics_label = $result['PoliticsInfo'][0]['Label'];
 
@@ -92,8 +90,9 @@ class ModerationController extends Controller
 
         if ($record->porn_score < $threshold && $record->politics_score < $threshold) {
             $texture->public = true;
-            $record->review_state = ReviewState::ACCEPTED;
             $texture->save();
+
+            $record->review_state = ReviewState::ACCEPTED;
             $record->save();
 
             return;

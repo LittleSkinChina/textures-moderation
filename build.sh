@@ -1,1 +1,1 @@
-esbuild ./views/moderation.jsx --target=chrome80,firefox80 --bundle > ./assets/js/texture-moderation.js
+esbuild ./views/moderation.jsx --target=chrome80,firefox80 --bundle --minify --outfile=./assets/js/texture-moderation.js

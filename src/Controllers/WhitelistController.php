@@ -11,10 +11,9 @@ class WhitelistController extends Controller
 {
     public function show()
     {
-        $items = WhitelistItem::select('moderation_whitelist.*')
-            ->leftJoin('users as operator', 'operator.uid', '=', 'moderation_whitelist.operator')
-            ->leftJoin('users', 'users.uid', '=', 'moderation_whitelist.user_id')
-            ->select(['users.uid', 'users.nickname', 'operator.nickname as operator_nickname', 'moderation_whitelist.created_at'])
+        $items = WhitelistItem::leftJoin('users as targetUser', 'targetUser.uid', '=', 'user_id')
+            ->leftJoin('users as operator', 'operator.uid', '=', 'operator')
+            ->select(['targetUser.uid', 'targetUser.nickname', 'operator.nickname as operator_nickname', 'created_at'])
             ->get();
 
         return view('LittleSkin\TextureModeration::whitelist', [
@@ -24,23 +23,36 @@ class WhitelistController extends Controller
 
     public function add(Request $request)
     {
-        $user = User::where('uid', $request->input('userId'))->first();
+        $userId = $request->input('userId');
+
+        $user = User::where('uid', $userId)->first();
         if (!$user) {
-            return abort(403, trans('admin.users.operations.non-existent'));
+            abort(403, trans('admin.users.operations.non-existent'));
         }
 
-        $item = new WhitelistItem();
-        $item->user_id = $request->input('userId');
-        $item->operator = auth()->id();
-        $item->save();
+        $item = WhitelistItem::where('user_id', $userId)->first();
+        if ($item) {
+            abort(403, '免审用户重复添加');
+        } else {
+            $item = new WhitelistItem();
+            $item->user_id = $userId;
+            $item->operator = auth()->id();
 
-        return redirect('/admin/moderation-whitelist');
+            $item->save();
+
+            return redirect('/admin/moderation-whitelist');
+        }
     }
 
     public function delete(Request $request)
     {
-        WhitelistItem::where('user_id', $request->input('userId'))->delete();
+        $item = WhitelistItem::where('user_id', $request->input('userId'))->first();
+        if ($item) {
+            $item->delete();
 
-        return json('删除成功', 0);
+            return json('删除成功', 0);
+        } else {
+            return json('删除失败', -1);
+        }
     }
 }

@@ -9,13 +9,15 @@
                 .then(response => {
                     if (response.code === 0) {
                         window.blessing.notify.toast.success(response.message)
-                        window.location.reload()
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 3000)
                     } else {
                         window.blessing.notify.toast.error(response.message)
                     }
                 })
                 .catch(() => {})
-            }
+        }
     </script>
     <div class="card">
         <div class="card-header">
@@ -28,27 +30,23 @@
             </form>
         </div>
         <div class="card-body p-0">
-
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.user') }}</th>
                         <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-admin') }}</th>
                         <th>{{ trans('LittleSkin\\TextureModeration::whitelist.user.grant-time') }}</th>
-                        {# <th>{{trans('admin.operationsTitle')}}</th> #}
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                         <tr>
-                            <td>{{ item.nickname }}
-                                (UID:
-                                {{ item.uid }})</td>
+                            <td>{{ item.nickname }} (UID: {{ item.uid }})</td>
                             <td>{{ item.operator_nickname }}</td>
                             <td>{{ item.created_at }}</td>
                             <td>
-                                <a href="#" class="btn btn-danger" onclick="deleteItem({{item.uid}})">{{ trans('LittleSkin\\TextureModeration::whitelist.user.revoke') }}</a>
+                                <a href="#" class="btn btn-danger" onclick="deleteItem({{ item.uid }})">{{ trans('LittleSkin\\TextureModeration::whitelist.user.revoke') }}</a>
                             </td>
                         </tr>
                     {% else %}

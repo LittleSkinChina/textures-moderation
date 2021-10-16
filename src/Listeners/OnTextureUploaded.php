@@ -5,7 +5,7 @@ namespace LittleSkin\TextureModeration\Listeners;
 use App\Models\Texture;
 use LittleSkin\TextureModeration\Controllers\ModerationController;
 
-class OnTextureUpload
+class OnTextureUploaded
 {
     public function handle(Texture $texture)
     {
