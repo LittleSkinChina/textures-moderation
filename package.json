@@ -1,6 +1,6 @@
 {
   "name": "texture-moderation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": " 材质审核",
   "description": "使用腾讯云数据万象服务，辅以人工，审核用户上传的材质。",
   "author": "LittleSkin",
