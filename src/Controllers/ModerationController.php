@@ -26,9 +26,6 @@ class ModerationController extends Controller
         $record->tid = $texture->tid;
         $size = getimagesizefromstring($file);
         if ($size[0] <= 100 || $size[1] <= 100) {
-            $texture->public = true;
-            $texture->save();
-            
             $record->review_state = ReviewState::MISS;
             $record->save();
 
@@ -101,6 +98,8 @@ class ModerationController extends Controller
             return;
         }
 
+        $texture->public = false;
+        $texture->save();
         $record->review_state = ReviewState::MANUAL;
         $record->save();
 

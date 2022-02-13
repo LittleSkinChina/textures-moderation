@@ -16,8 +16,6 @@ class OnPrivacyUpdated
                 ->where('tid', $texture->tid)
                 ->first();
             if (!$record) {
-                $texture->public = false;
-
                 return ModerationController::start($texture);
             } elseif ($record->review_state === ReviewState::REJECTED) {
                 return abort(403, 'rejected');
