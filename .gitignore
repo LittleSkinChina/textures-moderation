@@ -1,2 +1,5 @@
 vendor
 assets
+node_modules
+yarn.lock
+package-lock.json

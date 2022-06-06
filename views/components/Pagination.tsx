@@ -1,5 +1,4 @@
-// @ts-ignore
-const React = window.React
+import React from 'react'
 // @ts-ignore
 const t = window.trans
 import PaginationItem from './PaginationItem'

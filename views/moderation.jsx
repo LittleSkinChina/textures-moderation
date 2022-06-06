@@ -1,5 +1,5 @@
-const React = window.React
-const ReactDOM = window.ReactDOM
+import React from 'react'
+import ReactDOM from 'react-dom'
 const bsFetch = window.blessing.fetch
 const toast = window.blessing.notify.toast
 import Pagination from './components/Pagination'

@@ -10,6 +10,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
       - run: npm i esbuild -g
+      - run: npm i
       - run: chmod +x ./build.sh && mkdir -p ./assets/js/ && ./build.sh
       - run: mkdir ./vendor && wget https://github.com/tencentyun/cos-php-sdk-v5/releases/download/v2.3.4/cos-sdk-v5-7.phar -O ./vendor/cos-sdk-v5-7.phar
       - name: Make file

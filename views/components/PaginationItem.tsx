@@ -1,5 +1,4 @@
-// @ts-ignore
-const React = window.React
+import React from 'react'
 
 interface Props {
   disabled?: boolean
