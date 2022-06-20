@@ -17,7 +17,7 @@ class TextureModerationController extends Controller
     {
         $states = [
             ReviewState::MANUAL => trans('LittleSkin\TextureModeration::front-end.state.manual'),
-            ReviewState::ACCEPTED => trans('LittleSkin\TextureModeration::front-end.state.accepted'),
+            ReviewState::APPROVED => trans('LittleSkin\TextureModeration::front-end.state.accepted'),
             ReviewState::REJECTED => trans('LittleSkin\TextureModeration::front-end.state.rejected'),
             ReviewState::USER => trans('LittleSkin\TextureModeration::front-end.state.user'),
             ReviewState::MISS => trans('LittleSkin\TextureModeration::front-end.state.miss'),
@@ -56,7 +56,7 @@ class TextureModerationController extends Controller
 
                 if ($record) {
                     $record->operator = Auth::user()->uid;
-                    $record->review_state = ReviewState::ACCEPTED;
+                    $record->review_state = ReviewState::APPROVED;
 
                     $record->save();
 

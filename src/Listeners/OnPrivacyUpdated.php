@@ -19,12 +19,12 @@ class OnPrivacyUpdated
                 return ModerationController::start($texture);
             } elseif ($record->review_state === ReviewState::REJECTED) {
                 return abort(403, 'rejected');
-            } elseif ($record->review_state === ReviewState::ACCEPTED) {
+            } elseif ($record->review_state === ReviewState::APPROVED) {
                 return;
             } elseif (
         $record->review_state === ReviewState::MISS
         || $record->review_state === ReviewState::MANUAL
-        || $record->review_state === ReviewState::ACCEPTED
+        || $record->review_state === ReviewState::APPROVED
       ) {
                 return;
             }

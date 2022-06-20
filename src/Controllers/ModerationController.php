@@ -92,7 +92,7 @@ class ModerationController extends Controller
             $texture->public = true;
             $texture->save();
 
-            $record->review_state = ReviewState::ACCEPTED;
+            $record->review_state = ReviewState::APPROVED;
             $record->save();
 
             return;
