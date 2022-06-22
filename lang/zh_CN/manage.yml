@@ -23,6 +23,7 @@ state:
 
 message:
   privacy: 已设为私密并扣除积分
+  keep-privacy: 已设为私密
   privacy-failed: 用户积分不足，已删除该材质
   deleted: 已删除该材质
   texture-not-exist: 该材质不存在

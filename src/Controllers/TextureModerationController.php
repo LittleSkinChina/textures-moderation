@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\ReviewState;
+use LittleSkin\TextureModeration\RecordSource;
 
 class TextureModerationController extends Controller
 {
@@ -86,8 +87,16 @@ class TextureModerationController extends Controller
                     $record->review_state = ReviewState::REJECTED;
 
                     $record->save();
-
+                    
                     $texture = Texture::where('tid', $tid)->first();
+                    
+                    if($record->source === RecordSource::ON_PRIVACY_UPDATED){
+                        $texture->public = false;
+                        $texture->save();
+                        
+                        return json(trans('LittleSkin\TextureModeration::manage.message.keep-privacy'), 0);
+                    }
+
                     $texture->delete();
 
                     $uploader = $texture->owner;
@@ -105,7 +114,7 @@ class TextureModerationController extends Controller
                     return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
 
-                break;
+                break; 
             case 'private':
                 $record = ModerationRecord::where('tid', $tid)->first();
 
