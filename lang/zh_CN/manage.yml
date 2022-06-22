@@ -10,7 +10,7 @@ moderate:
   porn-label: 鉴黄标签
   politics-score: 鉴政评分
   politics-label: 鉴政标签
-  accept: 审核通过
+  approve: 审核通过
   privacy: 设为私密
   reject: 审核拒绝
 
@@ -18,7 +18,7 @@ state:
   manual: 正在处理
   miss: 无需审核
   rejected: 已被拒绝
-  accepted: 审核通过
+  approved: 审核通过
   user: 用户免审
 
 message:

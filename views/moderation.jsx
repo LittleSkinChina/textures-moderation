@@ -31,8 +31,8 @@ const Actions = ({ data, onSubmit }) => {
           <a className="btn btn-warning mr-2" onClick={() => onSubmit('private')}>
           {t('texture-moderation.moderate.privacy')}
           </a>
-          <a className="btn btn-primary mr-2" onClick={() => onSubmit('accept')}>
-          {t('texture-moderation.moderate.accept')}
+          <a className="btn btn-primary mr-2" onClick={() => onSubmit('approve')}>
+          {t('texture-moderation.moderate.approve')}
           </a>
         </div>
       </div>

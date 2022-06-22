@@ -5,6 +5,6 @@ manual_tip: 该材质正在等待管理员审核。
 
 notification:
   title: 材质审核结果
-  accepted: '材质 :name 已审核通过'
+  approved: '材质 :name 已审核通过'
   deleted: '材质 :name 已被删除'
   private: '材质 :name 已被设为私密'

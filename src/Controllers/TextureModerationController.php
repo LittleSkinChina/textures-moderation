@@ -18,7 +18,7 @@ class TextureModerationController extends Controller
     {
         $states = [
             ReviewState::MANUAL => trans('LittleSkin\TextureModeration::front-end.state.manual'),
-            ReviewState::APPROVED => trans('LittleSkin\TextureModeration::front-end.state.accepted'),
+            ReviewState::APPROVED => trans('LittleSkin\TextureModeration::front-end.state.approved'),
             ReviewState::REJECTED => trans('LittleSkin\TextureModeration::front-end.state.rejected'),
             ReviewState::USER => trans('LittleSkin\TextureModeration::front-end.state.user'),
             ReviewState::MISS => trans('LittleSkin\TextureModeration::front-end.state.miss'),
@@ -45,14 +45,14 @@ class TextureModerationController extends Controller
     {
         $data = $request->validate([
             'id' => ['required', 'integer'],
-            'action' => ['required', Rule::in(['accept', 'reject', 'private'])],
+            'action' => ['required', Rule::in(['approve', 'reject', 'private'])],
         ]);
 
         $tid = $data['id'];
         $action = $data['action'];
 
         switch ($action) {
-            case 'accept':
+            case 'approve':
                 $record = ModerationRecord::where('tid', $tid)->first();
 
                 if ($record) {
@@ -68,7 +68,7 @@ class TextureModerationController extends Controller
 
                     $uploader = $texture->owner;
                     if ($uploader) {
-                        Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.accepted', [
+                        Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.approved', [
                             'name' => $texture->name,
                         ]));
                     }
