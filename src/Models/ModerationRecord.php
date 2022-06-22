@@ -29,6 +29,7 @@ class ModerationRecord extends Model
         'politics_score' => 'integer',
         'review_state' => 'integer',
         'operator' => 'integer',
+        'source' => 'integer'
     ];
 
     public function texture()

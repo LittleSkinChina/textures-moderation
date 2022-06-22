@@ -9,6 +9,7 @@ use LittleSkin\TextureModeration\Listeners\OnTextureDeleted;
 use LittleSkin\TextureModeration\Listeners\OnTextureUploaded;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
 use LittleSkin\TextureModeration\ReviewState;
+use LittleSkin\TextureModeration\RecordSource;
 
 return function (Filter $filter, Dispatcher $events) {
     $events->listen('texture.uploaded', OnTextureUploaded::class);
@@ -19,7 +20,7 @@ return function (Filter $filter, Dispatcher $events) {
         if (!$texture->public) {
             $record = ModerationRecord::where('tid', $texture->tid)->first();
             if (!$record) {
-                $result = ModerationController::start($texture);
+                $result = ModerationController::start($texture, RecordSource::ON_PRIVACY_UPDATED);
 
                 return $result ? $result : $texture;
             } elseif ($record->review_state === ReviewState::MANUAL) {

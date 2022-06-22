@@ -4,6 +4,12 @@ original: 材质原图
 
 reviewer: 审核人
 last-reviewed: 审核时间
+record-source: 审核来源
+
+source:
+  on-public-upload: 公开上传
+  on-privacy-updated: 设为公开
+  unknown: 未记录
 
 moderate:
   porn-score: 鉴黄评分

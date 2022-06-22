@@ -16,7 +16,7 @@ require_once dirname(__FILE__).'/../../vendor/cos-sdk-v5-7.phar';
 
 class ModerationController extends Controller
 {
-    public static function start(Texture $texture)
+    public static function start(Texture $texture, $source)
     {
         $disk = Storage::disk('textures');
         $hash = $texture->hash;
@@ -24,6 +24,7 @@ class ModerationController extends Controller
 
         $record = new ModerationRecord();
         $record->tid = $texture->tid;
+        $record->source = $source;
         $size = getimagesizefromstring($file);
         if ($size[0] <= 100 || $size[1] <= 100) {
             $record->review_state = ReviewState::MISS;

@@ -139,6 +139,12 @@ const App = () => {
                   ) : <>机审</>}
                 </div>
                 <div>
+                  <b>{t('texture-moderation.record-source')}: </b>
+                  {v.source === 0 ? t('texture-moderation.source.on-public-upload') : 
+                  (v.source === 1 ? t('texture-moderation.source.on-privacy-updated') : 
+                  t('texture-moderation.source.unknown'))}
+                </div>
+                <div>
                   <b>{t('texture-moderation.last-reviewed')}: </b>
                   {new Date(v.updated_at).toLocaleString()}
                 </div>

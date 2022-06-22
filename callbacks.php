@@ -20,6 +20,7 @@ return [
                 $table->integer('politics_score')->default(-1);
                 $table->string('politics_label')->default('');
                 $table->integer('review_state');
+                $table->integer('source');
                 $table->integer('operator')->nullable();
                 $table->timestamps();
             });
