@@ -8,7 +8,7 @@ const Actions = ({ data, onSubmit }) => {
   return <div className="col-lg-4">
     <div className="card card-primary">
       <div className="card-header">
-        <h3 className="card-title">机审数据</h3>
+        <h3 className="card-title">{t('texture-moderation.moderate.machine-result')}</h3>
       </div>
       <div className="card-body">
         <div className="container-fluid">
@@ -108,13 +108,13 @@ const App = () => {
             <div className="card mr-3 mb-3" style={{ width: 240 }} onClick={() => setViewing(v)}>
               <div className="card-header">
                 {v.uploader ? (
-                  <><b>上传者: </b>
+                  <><b>{t('texture-moderation.uploader')}：</b>
                     <span className="mr-1">{v.nickname}</span>
                     (UID:
                     {v.uploader})
                   </>
                 ) :
-                  <b>材质已删除</b>}
+                  <b>{t('texture-moderation.deleted')}</b>}
               </div>
               <div className="card-body">
                 <img src={`/preview/${v.tid}?height=250`} className="card-img-top" />
@@ -132,11 +132,11 @@ const App = () => {
                   <div className="dropdown"></div>
                 </div>
                 <div>
-                  <b>{t('texture-moderation.reviewer')}: </b>
+                  <b>{t('texture-moderation.operator')}: </b>
                   {v.operator ? (
                     <>{v.operator_nickname} (UID:
                       {v.operator})</>
-                  ) : <>机审</>}
+                  ) : <>{t('texture-moderation.machine-review')}</>}
                 </div>
                 <div>
                   <b>{t('texture-moderation.record-source')}: </b>

@@ -2,9 +2,12 @@ title: 审核管理
 
 original: 材质原图
 
-reviewer: 审核人
+operator: 审核人
+machine-review: 机审
 last-reviewed: 审核时间
 record-source: 审核来源
+uploader: 上传者
+deleted: 材质已被删除
 
 source:
   on-public-upload: 公开上传
@@ -12,6 +15,7 @@ source:
   unknown: 未记录
 
 moderate:
+  machine-result: 机审数据
   porn-score: 鉴黄评分
   porn-label: 鉴黄标签
   politics-score: 鉴政评分
