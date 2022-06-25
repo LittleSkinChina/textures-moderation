@@ -35,10 +35,7 @@ class TextureModerationController extends Controller
         $q = $request->input('q');
 
         return ModerationRecord::usingSearchString($q)
-            ->leftJoin('users as operator', 'operator.uid', '=', 'moderation_records.operator')
-            ->leftJoin('textures', 'textures.tid', '=', 'moderation_records.tid')
-            ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
-            ->select(['textures.uploader', 'users.uid', 'users.nickname', 'moderation_records.*', 'operator.nickname as operator_nickname'])
+            ->with(['texture:tid,name,type,uploader', 'texture.owner:uid,nickname', 'operator:uid,nickname'])
             ->paginate(9);
     }
 

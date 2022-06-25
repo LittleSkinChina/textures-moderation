@@ -106,11 +106,11 @@ const App = () => {
           {list.map(v => (
             <div className="card mr-3 mb-3" style={{ width: 240 }} onClick={() => setViewing(v)}>
               <div className="card-header">
-                {v.uploader ? (
+                {v.texture ? (
                   <><b>{t('texture-moderation.uploader')}：</b>
-                    <span className="mr-1">{v.nickname}</span>
+                    <span className="mr-1">{v.texture.owner.nickname}</span>
                     (UID:
-                    {v.uploader})
+                    {v.texture.owner.uid})
                   </>
                 ) :
                   <b>{t('texture-moderation.deleted')}</b>}
@@ -133,8 +133,8 @@ const App = () => {
                 <div>
                   <b>{t('texture-moderation.operator')}: </b>
                   {v.operator ? (
-                    <>{v.operator_nickname} (UID:
-                      {v.operator})</>
+                    <>{v.operator.nickname} (UID:
+                      {v.operator.uid})</>
                   ) : <>{t('texture-moderation.machine-review')}</>}
                 </div>
                 <div>

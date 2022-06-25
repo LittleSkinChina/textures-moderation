@@ -34,6 +34,10 @@ class ModerationRecord extends Model
 
     public function texture()
     {
-        return $this->belongsTo('App\Models\Texture');
+        return $this->belongsTo('App\Models\Texture', 'tid', 'tid');
+    }
+
+    public function operator() {
+        return $this->belongsTo('App\Models\User', 'operator', 'uid');
     }
 }
