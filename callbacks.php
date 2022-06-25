@@ -28,14 +28,14 @@ return [
             });
         }
 
-        if(!Scope::where('name', 'TextureModeration.Read')->exists()) {
+        if (!Scope::where('name', 'TextureModeration.Read')->exists()) {
             Scope::create([
                 'name' => 'TextureModeration.Read',
                 'description' => 'Ability to read texture moderation records'
             ]);
         }
 
-        if(!Scope::where('name', 'TextureModeration.ReadWrite')->exists()) {
+        if (!Scope::where('name', 'TextureModeration.ReadWrite')->exists()) {
             Scope::create([
                 'name' => 'TextureModeration.ReadWrite',
                 'description' => 'Ability to read and write texture moderation records'

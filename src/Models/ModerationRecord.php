@@ -37,7 +37,8 @@ class ModerationRecord extends Model
         return $this->belongsTo('App\Models\Texture', 'tid', 'tid');
     }
 
-    public function operator() {
+    public function operator()
+    {
         return $this->belongsTo('App\Models\User', 'operator', 'uid');
     }
 }

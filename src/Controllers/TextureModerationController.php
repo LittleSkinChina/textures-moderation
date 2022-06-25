@@ -77,10 +77,10 @@ class TextureModerationController extends Controller
                 $record->review_state = ReviewState::REJECTED;
 
                 $record->save();
-                
+
                 $texture = Texture::where('tid', $tid)->first();
-                
-                if($record->source === RecordSource::ON_PRIVACY_UPDATED){
+
+                if ($record->source === RecordSource::ON_PRIVACY_UPDATED) {
                     $texture->public = false;
                     $texture->save();
 
@@ -105,7 +105,7 @@ class TextureModerationController extends Controller
 
                 return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
 
-                break; 
+                break;
             case 'private':
                 $record->review_state = ReviewState::REJECTED;
 
