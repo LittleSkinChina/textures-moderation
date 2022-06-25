@@ -53,6 +53,14 @@ return function (Filter $filter, Dispatcher $events) {
                 Route::post('', 'WhitelistController@add');
                 Route::delete('', 'WhitelistController@delete');
             });
+
+        Route::namespace('LittleSkin\TextureModeration\Controllers')
+            ->middleware(['api', 'auth:oauth', 'role:admin'])
+            ->prefix('api/admin/texture-moderation')
+            ->group(function () {
+                Route::get('', 'TextureModerationController@manage')->middleware(['scope:TextureModeration.Read,TextureModeration.ReadWrite']);
+                Route::put('{record}', 'TextureModerationController@review')->middleware(['scope:TextureModeration.ReadWrite']);
+            });
     });
 
     Hook::addMenuItem('admin', 4001, [
