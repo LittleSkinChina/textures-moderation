@@ -4,6 +4,7 @@ namespace LittleSkin\TextureModeration\Controllers;
 
 use App\Models\Texture;
 use App\Services\Hook;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,7 @@ class TextureModerationController extends Controller
             ->paginate(9);
     }
 
-    public function review(ModerationRecord $record, Request $request)
+    public function review(ModerationRecord $record, Request $request, Dispatcher $dispatcher)
     {
         $data = $request->validate([
             'action' => ['required', Rule::in(['approve', 'reject', 'private'])],
@@ -63,6 +64,8 @@ class TextureModerationController extends Controller
 
                 $texture->save();
 
+                $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
                 $uploader = $texture->owner;
                 if ($uploader) {
                     Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.approved', [
@@ -83,7 +86,9 @@ class TextureModerationController extends Controller
                 if($record->source === RecordSource::ON_PRIVACY_UPDATED){
                     $texture->public = false;
                     $texture->save();
-                    
+
+                    $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
                     return json(trans('LittleSkin\TextureModeration::manage.message.keep-privacy'), 0);
                 }
 
@@ -98,6 +103,8 @@ class TextureModerationController extends Controller
                         'name' => $texture->name,
                     ]));
                 }
+
+                $dispatcher->dispatch('texture-moderation.finished', [$record]);
 
                 return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
 
@@ -124,6 +131,8 @@ class TextureModerationController extends Controller
                             'name' => $texture->name,
                         ]));
 
+                        $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
                         return json(trans('LittleSkin\TextureModeration::manage.message.privacy'), 0);
                     } else {
                         $uploader->score += $texture->size * option('score_per_storage');
@@ -134,6 +143,8 @@ class TextureModerationController extends Controller
                         Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
                             'name' => $texture->name,
                         ]));
+
+                        $dispatcher->dispatch('texture-moderation.finished', [$record]);
 
                         return json(trans('LittleSkin\TextureModeration::manage.message.privacy-failed'), 1);
                     }

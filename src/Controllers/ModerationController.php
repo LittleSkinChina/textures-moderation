@@ -5,6 +5,7 @@ namespace LittleSkin\TextureModeration\Controllers;
 use App\Models\Texture;
 use Blessing\Rejection;
 use Exception;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use LittleSkin\TextureModeration\Models\ModerationRecord;
@@ -16,11 +17,13 @@ require_once dirname(__FILE__).'/../../vendor/cos-sdk-v5-7.phar';
 
 class ModerationController extends Controller
 {
-    public static function start(Texture $texture, $source)
+    public static function start(Texture $texture, $source, Dispatcher $dispatcher)
     {
         $disk = Storage::disk('textures');
         $hash = $texture->hash;
         $file = $disk->get($hash);
+
+        $dispatcher->dispatch('texture-moderation.starting', [$texture]);
 
         $record = new ModerationRecord();
         $record->tid = $texture->tid;
@@ -30,6 +33,8 @@ class ModerationController extends Controller
             $record->review_state = ReviewState::MISS;
             $record->save();
 
+            $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
             return;
         }
 
@@ -37,6 +42,8 @@ class ModerationController extends Controller
         if ($whitelist) {
             $record->review_state = ReviewState::USER;
             $record->save();
+
+            $dispatcher->dispatch('texture-moderation.finished', [$record]);
 
             return;
         }
@@ -49,6 +56,8 @@ class ModerationController extends Controller
             if ($itsRecord) {
                 $record = $itsRecord->review_state;
                 $record->save();
+
+                $dispatcher->dispatch('texture-moderation.finished', [$record]);
 
                 return;
             }
@@ -96,13 +105,18 @@ class ModerationController extends Controller
             $record->review_state = ReviewState::APPROVED;
             $record->save();
 
+            $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
             return;
         }
 
         $texture->public = false;
         $texture->save();
+        
         $record->review_state = ReviewState::MANUAL;
         $record->save();
+
+        $dispatcher->dispatch('texture-moderation.onegai', [$record]);
 
         return new Rejection(trans('LittleSkin\TextureModeration::skinlib.manual_tip'));
     }
