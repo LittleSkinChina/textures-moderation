@@ -74,8 +74,7 @@ const App = () => {
     setMaxPage(last_page)
   }
   const submit = async (action) => {
-    let r = await bsFetch.post('/admin/texture-moderation/review', {
-      id: viewing.tid,
+    let r = await bsFetch.put('/admin/texture-moderation/review/' + viewing.id, {
       action
     })
     if (r.code === 0) {

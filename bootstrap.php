@@ -41,7 +41,7 @@ return function (Filter $filter, Dispatcher $events) {
             ->prefix('admin/texture-moderation')
             ->group(function () {
                 Route::get('', 'TextureModerationController@show');
-                Route::post('review', 'TextureModerationController@review');
+                Route::put('review/{record}', 'TextureModerationController@review');
                 Route::get('list', 'TextureModerationController@manage');
             });
 
