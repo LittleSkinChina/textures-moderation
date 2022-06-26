@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Scope;
+
 return [
     App\Events\PluginWasEnabled::class => function () {
         if (!Schema::hasTable('moderation_whitelist')) {
@@ -24,6 +26,20 @@ return [
                 $table->integer('operator')->nullable();
                 $table->timestamps();
             });
+        }
+
+        if (!Scope::where('name', 'TextureModeration.Read')->exists()) {
+            Scope::create([
+                'name' => 'TextureModeration.Read',
+                'description' => 'Ability to read texture moderation records'
+            ]);
+        }
+
+        if (!Scope::where('name', 'TextureModeration.ReadWrite')->exists()) {
+            Scope::create([
+                'name' => 'TextureModeration.ReadWrite',
+                'description' => 'Ability to read and write texture moderation records'
+            ]);
         }
     },
 ];

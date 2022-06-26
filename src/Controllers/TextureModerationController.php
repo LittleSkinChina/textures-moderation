@@ -4,6 +4,7 @@ namespace LittleSkin\TextureModeration\Controllers;
 
 use App\Models\Texture;
 use App\Services\Hook;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -34,129 +35,116 @@ class TextureModerationController extends Controller
         $q = $request->input('q');
 
         return ModerationRecord::usingSearchString($q)
-            ->leftJoin('users as operator', 'operator.uid', '=', 'moderation_records.operator')
-            ->leftJoin('textures', 'textures.tid', '=', 'moderation_records.tid')
-            ->leftJoin('users', 'users.uid', '=', 'textures.uploader')
-            ->select(['textures.uploader', 'users.uid', 'users.nickname', 'moderation_records.*', 'operator.nickname as operator_nickname'])
+            ->with(['texture:tid,name,type,uploader', 'texture.owner:uid,nickname', 'operator:uid,nickname'])
             ->paginate(9);
     }
 
-    public function review(Request $request)
+    public function review(ModerationRecord $record, Request $request, Dispatcher $dispatcher)
     {
         $data = $request->validate([
-            'id' => ['required', 'integer'],
             'action' => ['required', Rule::in(['approve', 'reject', 'private'])],
         ]);
 
-        $tid = $data['id'];
+        $tid = $record->tid;
         $action = $data['action'];
+
+        $record->operator = Auth::user()->uid;
 
         switch ($action) {
             case 'approve':
-                $record = ModerationRecord::where('tid', $tid)->first();
+                $record->review_state = ReviewState::APPROVED;
 
-                if ($record) {
-                    $record->operator = Auth::user()->uid;
-                    $record->review_state = ReviewState::APPROVED;
+                $record->save();
 
-                    $record->save();
+                $texture = Texture::where('tid', $tid)->first();
+                $texture->public = true;
 
-                    $texture = Texture::where('tid', $tid)->first();
-                    $texture->public = true;
+                $texture->save();
 
-                    $texture->save();
+                $dispatcher->dispatch('texture-moderation.finished', [$record]);
 
-                    $uploader = $texture->owner;
-                    if ($uploader) {
-                        Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.approved', [
-                            'name' => $texture->name,
-                        ]));
-                    }
-
-                    return json(trans('general.op-success'), 0);
-                } else {
-                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
+                $uploader = $texture->owner;
+                if ($uploader) {
+                    Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.approved', [
+                        'name' => $texture->name,
+                    ]));
                 }
+
+                return json(trans('general.op-success'), 0);
 
                 break;
             case 'reject':
-                $record = ModerationRecord::where('tid', $tid)->first();
+                $record->review_state = ReviewState::REJECTED;
 
-                if ($record) {
-                    $record->operator = Auth::user()->uid;
-                    $record->review_state = ReviewState::REJECTED;
+                $record->save();
 
-                    $record->save();
-                    
-                    $texture = Texture::where('tid', $tid)->first();
-                    
-                    if($record->source === RecordSource::ON_PRIVACY_UPDATED){
+                $texture = Texture::where('tid', $tid)->first();
+
+                if ($record->source === RecordSource::ON_PRIVACY_UPDATED) {
+                    $texture->public = false;
+                    $texture->save();
+
+                    $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
+                    return json(trans('LittleSkin\TextureModeration::manage.message.keep-privacy'), 0);
+                }
+
+                $texture->delete();
+
+                $uploader = $texture->owner;
+                if ($uploader) {
+                    $uploader->score += $texture->size * option('score_per_storage');
+                    $uploader->save();
+
+                    Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
+                        'name' => $texture->name,
+                    ]));
+                }
+
+                $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
+                return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
+
+                break;
+            case 'private':
+                $record->review_state = ReviewState::REJECTED;
+
+                $record->save();
+
+                $texture = Texture::where('tid', $tid)->first();
+
+                $uploader = $texture->owner;
+                if ($uploader) {
+                    $diff = $texture->size * (option('private_score_per_storage') - option('score_per_storage'));
+
+                    if ($uploader->score >= $diff) {
+                        $uploader->score -= $diff;
+                        $uploader->save();
+
                         $texture->public = false;
                         $texture->save();
-                        
-                        return json(trans('LittleSkin\TextureModeration::manage.message.keep-privacy'), 0);
-                    }
 
-                    $texture->delete();
+                        Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.private', [
+                            'name' => $texture->name,
+                        ]));
 
-                    $uploader = $texture->owner;
-                    if ($uploader) {
+                        $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
+                        return json(trans('LittleSkin\TextureModeration::manage.message.privacy'), 0);
+                    } else {
                         $uploader->score += $texture->size * option('score_per_storage');
                         $uploader->save();
+
+                        $texture->delete();
 
                         Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
                             'name' => $texture->name,
                         ]));
+
+                        $dispatcher->dispatch('texture-moderation.finished', [$record]);
+
+                        return json(trans('LittleSkin\TextureModeration::manage.message.privacy-failed'), 1);
                     }
-
-                    return json(trans('LittleSkin\TextureModeration::manage.message.deleted'), 0);
-                } else {
-                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
-                }
-
-                break; 
-            case 'private':
-                $record = ModerationRecord::where('tid', $tid)->first();
-
-                if ($record) {
-                    $record->operator = Auth::user()->uid;
-                    $record->review_state = ReviewState::REJECTED;
-
-                    $record->save();
-
-                    $texture = Texture::where('tid', $tid)->first();
-
-                    $uploader = $texture->owner;
-                    if ($uploader) {
-                        $diff = $texture->size * (option('private_score_per_storage') - option('score_per_storage'));
-
-                        if ($uploader->score >= $diff) {
-                            $uploader->score -= $diff;
-                            $uploader->save();
-
-                            $texture->public = false;
-                            $texture->save();
-
-                            Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.private', [
-                                'name' => $texture->name,
-                            ]));
-
-                            return json(trans('LittleSkin\TextureModeration::manage.message.privacy'), 0);
-                        } else {
-                            $uploader->score += $texture->size * option('score_per_storage');
-                            $uploader->save();
-
-                            $texture->delete();
-
-                            Hook::sendNotification([$uploader], trans('LittleSkin\TextureModeration::skinlib.notification.title'), trans('LittleSkin\TextureModeration::skinlib.notification.deleted', [
-                                'name' => $texture->name,
-                            ]));
-
-                            return json(trans('LittleSkin\TextureModeration::manage.message.privacy-failed'), 1);
-                        }
-                    }
-                } else {
-                    return json(trans('LittleSkin\TextureModeration::manage.message.texture-not-exist'), 1);
                 }
 
                 break;

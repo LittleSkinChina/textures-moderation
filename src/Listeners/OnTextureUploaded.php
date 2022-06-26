@@ -3,15 +3,16 @@
 namespace LittleSkin\TextureModeration\Listeners;
 
 use App\Models\Texture;
+use Illuminate\Contracts\Events\Dispatcher;
 use LittleSkin\TextureModeration\Controllers\ModerationController;
 use LittleSkin\TextureModeration\RecordSource;
 
 class OnTextureUploaded
 {
-    public function handle(Texture $texture)
+    public static function handle(Texture $texture, Dispatcher $dispatcher)
     {
         if ($texture->public) {
-            return ModerationController::start($texture, RecordSource::ON_PUBLIC_UPLOAD);
+            return ModerationController::start($texture, RecordSource::ON_PUBLIC_UPLOAD, $dispatcher);
         }
     }
 }

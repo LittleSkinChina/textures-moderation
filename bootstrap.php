@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Texture;
 use App\Services\Hook;
 use Blessing\Filter;
 use Blessing\Rejection;
@@ -12,7 +13,9 @@ use LittleSkin\TextureModeration\ReviewState;
 use LittleSkin\TextureModeration\RecordSource;
 
 return function (Filter $filter, Dispatcher $events) {
-    $events->listen('texture.uploaded', OnTextureUploaded::class);
+    $events->listen('texture.uploaded', function (Texture $texture) use ($events) {
+        return OnTextureUploaded::handle($texture, $events);
+    });
     $events->listen('texture.deleted', OnTextureDeleted::class);
 
     $filter->add('can_update_texture_privacy', function ($can, $texture) {
@@ -41,7 +44,7 @@ return function (Filter $filter, Dispatcher $events) {
             ->prefix('admin/texture-moderation')
             ->group(function () {
                 Route::get('', 'TextureModerationController@show');
-                Route::post('review', 'TextureModerationController@review');
+                Route::put('review/{record}', 'TextureModerationController@review');
                 Route::get('list', 'TextureModerationController@manage');
             });
 
@@ -52,6 +55,14 @@ return function (Filter $filter, Dispatcher $events) {
                 Route::get('', 'WhitelistController@show');
                 Route::post('', 'WhitelistController@add');
                 Route::delete('', 'WhitelistController@delete');
+            });
+
+        Route::namespace('LittleSkin\TextureModeration\Controllers')
+            ->middleware(['api', 'auth:oauth', 'role:admin'])
+            ->prefix('api/admin/texture-moderation')
+            ->group(function () {
+                Route::get('', 'TextureModerationController@manage')->middleware(['scope:TextureModeration.Read,TextureModeration.ReadWrite']);
+                Route::put('{record}', 'TextureModerationController@review')->middleware(['scope:TextureModeration.ReadWrite']);
             });
     });
 
