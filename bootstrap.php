@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Texture;
 use App\Services\Hook;
 use Blessing\Filter;
 use Blessing\Rejection;
@@ -12,7 +13,9 @@ use LittleSkin\TextureModeration\ReviewState;
 use LittleSkin\TextureModeration\RecordSource;
 
 return function (Filter $filter, Dispatcher $events) {
-    $events->listen('texture.uploaded', OnTextureUploaded::class);
+    $events->listen('texture.uploaded', function (Texture $texture) use ($events) {
+        return OnTextureUploaded::handle($texture, $events);
+    });
     $events->listen('texture.deleted', OnTextureDeleted::class);
 
     $filter->add('can_update_texture_privacy', function ($can, $texture) {
